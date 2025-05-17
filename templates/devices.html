@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="">
+<head>
+    <title>Device List</title>
+</head>
+<body>
+    <h2>🔐 Registered Devices</h2>
+    {% if registered %}
+    <table border="1">
+        <tr>
+            <th>Nickname</th>
+            <th>Machine ID</th>
+            <th>Registered</th>
+            <th>Last Seen</th>
+        </tr>
+        {% for device in registered %}
+        <tr>
+            <td>{{ device[1] }}</td>
+            <td>{{ device[0] }}</td>
+            <td>{{ device[2] }}</td>
+            <td>{{ device[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No registered devices found.</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>📋 Unregistered Devices</h2>
+    {% if unregistered %}
+    <table border="1">
+        <tr>
+            <th>Machine ID</th>
+            <th>Registered</th>
+            <th>Last Seen</th>
+        </tr>
+        {% for device in unregistered %}
+        <tr>
+            <td>{{ device[0] }}</td>
+            <td>{{ device[2] }}</td>
+            <td>{{ device[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No unregistered devices found.</p>
+    {% endif %}
+</body>
+</html>

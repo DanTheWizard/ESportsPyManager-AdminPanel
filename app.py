@@ -1,12 +1,33 @@
 from flask import Flask
+from flask_login import LoginManager
+from routes import app_routes
+from users import load_user
+from database import init_db
+from threading import Thread
+from src.mqtt_client import mqtt_background_loop
+
+# before app.run(...)
+init_db()
+
+# Start MQTT connection in a separate thread
+mqtt_thread = Thread(target=mqtt_background_loop)
+mqtt_thread.daemon = True
+mqtt_thread.start()
 
 app = Flask(__name__)
+app.secret_key = "super-secret-key"  # Use os.getenv in production
 
+# Flask-Login Setup
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'app_routes.login'
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+@login_manager.user_loader
+def user_loader(user_id):
+    return load_user(user_id)
 
+# Register routes from a separate file
+app.register_blueprint(app_routes)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
