@@ -63,6 +63,7 @@ def dashboard():
         online=online,
         offline=offline,
         user=current_user.id,
+        ENABLE_DASH_CHART=ENABLE_DASH_CHART,
         DASH_CHART_REFRESH_TIMEOUT_MS=(DASH_CHART_REFRESH_TIMEOUT * 1000)
     )
 
