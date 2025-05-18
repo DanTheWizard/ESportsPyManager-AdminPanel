@@ -21,7 +21,8 @@
         </label>
         <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
         <br><br>
-        <button type="submit">Execute Bulk Action</button>
+        <input type="text" id="bulk_argument" class="arg-box" style="display:none;">
+        <button id="bulk_execute" type="button">Execute Bulk Action</button>
     </div>
     <!-- ------------------------------------------------------------------------------------- -->
 
@@ -42,7 +43,7 @@
     <!-- ------------------------------------------------------------------------------------- -->
 
     <hr>
-    <h3>⚫ Offline Devices (no ping in last 15 s)</h3>
+    <h3>⚫ Offline Devices (no ping in last {{ OFFLINE_DEVICE_TIMEOUT }} s)</h3>
     <ul id="offline-list">
       <li>Loading…</li>
     </ul>
@@ -51,10 +52,12 @@
 
 
 <script>
-  window.FLASK_ROUTES = {
-    api_device_statuses: "{{ url_for('app_routes.api_device_statuses') }}",
-    send_action_device: "{{ url_for('app_routes.send_action_device') }}"
-  };
+    window.FLASK_ROUTES = {
+        api_device_statuses: "{{ url_for('app_routes.api_device_statuses') }}",
+        send_action_device: "{{ url_for('app_routes.send_action_device') }}",
+        send_action: "{{ url_for('app_routes.send_action') }}",
+    };
+    window.REFRESH_TIMEOUT = {{REFRESH_TIMEOUT_MS}}
 
   document.addEventListener("DOMContentLoaded", function () {
       const script = document.createElement('script');

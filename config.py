@@ -4,11 +4,11 @@ import os
 
 
 
-load_dotenv()                                                   # Load the variables from the .env file
+load_dotenv()                                                # Load the variables from the .env file
 
 
-ADMIN_USERNAME   = os.getenv("ADMIN_USERNAME")           # Websocket Server Location
-ADMIN_PASSWORD   = generate_password_hash(os.getenv("ADMIN_PASSWORD"))        # Websocket Port
+ADMIN_USERNAME   = os.getenv("ADMIN_USERNAME")                              # The Admin Username for login
+ADMIN_PASSWORD   = generate_password_hash(os.getenv("ADMIN_PASSWORD"))      # Admin Password for Login
 SECRET_KEY       = os.getenv("SECRET_KEY")
 
 
@@ -20,3 +20,6 @@ WS_USE_TLS                = bool(os.getenv("WS_TLS"))        # Whether to use TL
 
 
 DEBUG_WS = True
+
+OFFLINE_DEVICE_TIMEOUT    = 15  # Time to determine since last device publish to consider it offline (in seconds) [Recommended at least 15]
+ACTIONS_REFRESH_TIMEOUT   = 10   # Actions page JavaScript refresh timout (in seconds) [Recommended at least 10]

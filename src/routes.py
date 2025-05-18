@@ -5,6 +5,7 @@ from users import validate_login
 from src.mqtt_client import connected_devices, hostnames, last_active
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
+from config import *
 
 app_routes = Blueprint("app_routes", __name__)
 
@@ -101,7 +102,12 @@ def deregister_device():
 def actions_page():
     devices = get_registered_devices()
     devices = sorted(devices, key=lambda d: d[1].lower())  # Sort by nickname
-    return render_template("actions.html", devices=devices)
+    return render_template(
+        "actions.html",
+        devices=devices,
+        OFFLINE_DEVICE_TIMEOUT=OFFLINE_DEVICE_TIMEOUT,
+        REFRESH_TIMEOUT_MS=(ACTIONS_REFRESH_TIMEOUT*1000)
+    )
 
 @app_routes.route('/api/send_action', methods=['POST'])
 @login_required
@@ -151,7 +157,7 @@ def api_device_statuses():
     now = datetime.now()
     for machine_id, nickname, *_ in get_registered_devices():
         last = last_active.get(machine_id)
-        online = bool(last and (now - last).total_seconds() <= 15)
+        online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
         statuses.append({
             "machine_id": machine_id,
             "nickname": nickname,

@@ -47,6 +47,47 @@ document.getElementById("bulk_action").addEventListener("change", function () {
   toggleArgBox(document.getElementById("bulk_argument"), this.value);
 });
 
+document.getElementById("bulk_execute").addEventListener("click", function () {
+  const action = document.getElementById("bulk_action").value;
+  const argument = document.getElementById("bulk_argument").value || "";
+  const selectedDevices = Array.from(document.querySelectorAll(".device-checkbox:checked"))
+    .map(cb => cb.value);
+
+  if (selectedDevices.length === 0 || action === "none") {
+    alert("⚠️ Please select at least one device and a valid action.");
+    return;
+  }
+
+  const form = new URLSearchParams();
+  selectedDevices.forEach(id => form.append("selected_devices", id));
+  form.append("bulk_action", action);
+  form.append("bulk_argument", argument);
+
+  fetch(window.FLASK_ROUTES.send_action, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: form.toString(),
+  })
+  .then(response => {
+    if (response.redirected) {
+      // 🔁 Redirect manually to the Flask redirect URL
+      window.location.href = response.url;
+    } else {
+      // You can parse text or add better fallback
+      return response.text().then(text => {
+        console.warn("Unexpected response:", text);
+        alert("⚠️ Bulk action submitted, but server returned an unexpected response.");
+      });
+    }
+  })
+  .catch(err => {
+    alert(`❌ Request failed: ${err}`);
+  });
+});
+
+
+
+
 // Update Device Table
 function updateDeviceTable() {
   fetch(window.FLASK_ROUTES.api_device_statuses)
@@ -145,8 +186,8 @@ function rebindPerDeviceExecute() {
     .then(r => r.json())
     .then(json => {
       alert(json.status === 'success'
-        ? `✅ Sent "${json.sent}" to ${nickname}`
-        : `⚠️ Error: ${json.message || 'unknown error'}`
+        ?`✅ Sent "${json.sent}" to ${nickname}`
+        :`⚠️ Error: ${json.message || 'unknown error'}`
       );
     })
     .catch(err => alert(`❌ Request failed: ${err}`));
@@ -154,5 +195,5 @@ function rebindPerDeviceExecute() {
 }
 
 // Init
-setInterval(updateDeviceTable, 5000);
+setInterval(updateDeviceTable, window.REFRESH_TIMEOUT);
 updateDeviceTable();
