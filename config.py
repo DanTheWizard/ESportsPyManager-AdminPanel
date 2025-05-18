@@ -21,5 +21,6 @@ WS_USE_TLS                = bool(os.getenv("WS_TLS"))        # Whether to use TL
 
 DEBUG_WS = True
 
-OFFLINE_DEVICE_TIMEOUT    = 15  # Time to determine since last device publish to consider it offline (in seconds) [Recommended at least 15]
+OFFLINE_DEVICE_TIMEOUT    = 15   # Time to determine since last device publish to consider it offline (in seconds) [Recommended at least 15]
 ACTIONS_REFRESH_TIMEOUT   = 10   # Actions page JavaScript refresh timout (in seconds) [Recommended at least 10]
+OVERVIEW_REFRESH_TIMEOUT  = 10

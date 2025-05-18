@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_user, logout_user, login_required, current_user
 from database import register_device, get_registered_devices, remove_device
 from users import validate_login
-from src.mqtt_client import connected_devices, hostnames, last_active
+from src.mqtt_client import connected_devices, hostnames, last_active, device_status
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
@@ -165,3 +165,44 @@ def api_device_statuses():
             "last_active": last.isoformat() if last else None
         })
     return jsonify(statuses=statuses)
+
+
+
+########################################################################################################################
+
+# Overview Section
+
+@app_routes.route('/overview')
+@login_required
+def overview_page():
+    return render_template(
+        "overview.html",
+        devices=build_device_data(),
+        OFFLINE_DEVICE_TIMEOUT=OFFLINE_DEVICE_TIMEOUT,
+        REFRESH_TIMEOUT_MS=(OVERVIEW_REFRESH_TIMEOUT*1000)
+    )
+
+@app_routes.route('/api/overview_data')
+@login_required
+def api_overview_data():
+    return jsonify(devices=build_device_data())
+
+
+def build_device_data():
+    from src.mqtt_client import device_status, last_active
+    now = datetime.now()
+    devices = []
+    for machine_id, nickname, *_ in get_registered_devices():
+        last = last_active.get(machine_id)
+        online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
+        stats = device_status.get(machine_id, {})
+        devices.append({
+            "nickname": nickname,
+            "cpu": stats.get("cpu", "—"),
+            "ram": stats.get("ram", "—"),
+            "user": stats.get("user", "—"),
+            "app": stats.get("app", "—"),
+            "last_active": last.isoformat() if last else None,
+            "online": online
+        })
+    return devices

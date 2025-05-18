@@ -7,6 +7,8 @@ import time
 connected_devices = set()   # Will contain active machine_ids
 hostnames = {}              # machine_id -> hostname
 last_active = {}            # machine_id -> datetime
+device_status = {}          # machine_id → { cpu, ram, user, app }
+
 
 
 MQTT_TOPIC = "PC/#"
@@ -28,12 +30,20 @@ def on_message(wsclient, userdata, msg):
         machine_id = topic.split('/')[1]
         connected_devices.add(machine_id) # Detects the computers by MACHINE_ID
         parts = topic.split('/')
+
         if len(parts) >= 2:
             machine_id = parts[1]
             connected_devices.add(machine_id)
 
             if len(parts) == 3 and parts[2] == "hostname":
                 hostnames[machine_id] = payload
+
+        if len(parts) == 3:
+            machine_id = parts[1]
+            key = parts[2]
+            if key in ["cpu", "ram", "user", "app"]:
+                device_status.setdefault(machine_id, {})[key] = payload
+
     elif topic.startswith("LastActive/") and topic.endswith("/time"):
         _, machine_id, _ = topic.split('/')
         last_active[machine_id] = datetime.now()

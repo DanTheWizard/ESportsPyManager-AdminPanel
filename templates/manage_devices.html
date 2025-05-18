@@ -7,7 +7,17 @@
     </tr>
     {% for device in unregistered %}
     <tr>
-        <td>{{ device.machine_id }}</td>
+        <td>
+            <button
+                type="button"
+                class="identify-btn"
+                data-machine-id="{{ device.machine_id }}"
+                title="Make this PC identify itself"
+            >
+                Identify
+            </button>
+            {{ device.machine_id }}
+        </td>
         <td>{{ device.hostname }}</td>
         <td>
             <form method="POST" action="{{ url_for('app_routes.register_from_manage') }}">
@@ -44,3 +54,38 @@
     </tr>
     {% endfor %}
 </table>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".identify-btn").forEach(button => {
+    button.addEventListener("click", () => {
+      const machineId = button.dataset.machineId;
+
+      const form = new URLSearchParams();
+      form.append("machine_id", machineId);
+      form.append("action", "ID");
+      form.append("argument", "");
+
+      fetch("{{ url_for('app_routes.send_action_device') }}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: form.toString()
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.status === "success") {
+          alert(`✅ Identify signal sent to ${machineId}`);
+        } else {
+          alert(`⚠️ Error: ${json.message || 'Unknown error'}`);
+        }
+      })
+      .catch(err => {
+        alert(`❌ Request failed: ${err}`);
+      });
+    });
+  });
+});
+</script>
