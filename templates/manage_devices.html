@@ -25,7 +25,7 @@
         </td>
         <td>{{ device.hostname }}</td>
         <td>
-            <form method="POST" action="{{ url_for('app_routes.register_from_manage') }}">
+            <form method="POST" action="{{ url_for('api_routes.register_from_manage') }}">
                 <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
                 <input type="text" name="nickname" placeholder="Enter nickname" required>
                 <button type="submit">Register</button>
@@ -51,7 +51,7 @@
         <td>{{ device.machine_id }}</td>
         <td>{{ device.registered_at }}</td>
         <td>
-            <form method="POST" action="{{ url_for('app_routes.deregister_device') }}">
+            <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
                 <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
                 <button type="submit">Delete</button>
             </form>
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
       form.append("action", "ID");
       form.append("argument", "");
 
-      fetch("{{ url_for('app_routes.send_action_device') }}", {
+      fetch("{{ url_for('api_routes.send_action_device') }}", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"

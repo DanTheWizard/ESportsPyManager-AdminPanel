@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from routes import app_routes
+from api import api_routes
 from users import load_user
 from database import init_db
 from threading import Thread
@@ -34,6 +35,7 @@ def user_loader(user_id):
 
 # Register routes from a separate file
 app.register_blueprint(app_routes)
+app.register_blueprint(api_routes)
 
 if __name__ == '__main__':
     app.run(debug=True)

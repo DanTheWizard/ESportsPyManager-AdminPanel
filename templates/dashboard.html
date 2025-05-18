@@ -43,7 +43,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             function updateDashboardStats() {
-                fetch("{{ url_for('app_routes.api_dashboard_stats') }}")
+                fetch("{{ url_for('api_routes.api_dashboard_stats') }}")
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById("count-total").textContent = data.total;
@@ -67,7 +67,7 @@
         let usageHistoryChart = null;
 
         function updateUsageHistoryChart() {
-            fetch("{{ url_for('app_routes.api_avg_usage_history') }}")
+            fetch("{{ url_for('api_routes.api_avg_usage_history') }}")
                 .then(res => res.json())
                 .then(data => {
                     const labels = data.map(d => d.time);

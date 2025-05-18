@@ -10,7 +10,7 @@
 
 <h2>Device Actions</h2>
 
-<form method="POST" action="{{ url_for('app_routes.send_action') }}">
+<form method="POST" action="{{ url_for('api_routes.send_action') }}">
     <div id="sel_bulk_line" class="sel_bulk_line">
         <label>
             <input type="checkbox" id="select_all"> All PCs
@@ -63,9 +63,9 @@
 
 <script>
     window.FLASK_ROUTES = {
-        api_device_statuses: "{{ url_for('app_routes.api_device_statuses') }}",
-        send_action_device: "{{ url_for('app_routes.send_action_device') }}",
-        send_action: "{{ url_for('app_routes.send_action') }}",
+        api_device_statuses: "{{ url_for('api_routes.api_device_statuses') }}",
+        send_action_device: "{{ url_for('api_routes.send_action_device') }}",
+        send_action: "{{ url_for('api_routes.send_action') }}",
     };
     window.REFRESH_TIMEOUT = {{REFRESH_TIMEOUT_MS}}
 
