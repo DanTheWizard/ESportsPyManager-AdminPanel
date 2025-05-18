@@ -1,9 +1,29 @@
 <h2>Device Actions</h2>
 
 <form method="POST" action="{{ url_for('app_routes.send_action') }}">
-    <label>
-        <input type="checkbox" id="select_all"> All PCs
-    </label>
+    <div id="sel_bulk_line" class="sel_bulk_line">
+        <label>
+            <input type="checkbox" id="select_all"> All PCs
+        </label>
+
+    <!-- ------------------------------------------------------------------------------------- -->
+
+        <h3>🔁 Bulk Action</h3> {# Originally with style="margin-top: 2em;" #}
+        <label>Action:
+            <select name="bulk_action" id="bulk_action">
+                <option value="none">none</option>
+                <option value="test">test</option>
+                <option value="shutdown">shutdown</option>
+                <option value="say">say</option>
+                <option value="MCEdu">MCEdu</option>
+    {#            <option value="ID">ID</option>#}
+            </select>
+        </label>
+        <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
+        <br><br>
+        <button type="submit">Execute Bulk Action</button>
+    </div>
+    <!-- ------------------------------------------------------------------------------------- -->
 
     <table border="1" style="width:100%; margin-top: 1em;">
         <thead>
@@ -15,59 +35,14 @@
                 <th>Argument</th>
             </tr>
         </thead>
-        <tbody>
-            {% for device in devices %}
-            <tr>
-                <td>
-                    <input type="checkbox" name="selected_devices" value="{{ device[0] }}" class="device-checkbox">
-                </td>
-                <td>{{ device[1] }}</td>
-                <td>{{ device[0] }}</td>
-                <td>
-                    <select class="action-dropdown" >
-                        <option value="none">none</option>
-                        <option value="test">test</option>
-                        <option value="shutdown">shutdown</option>
-                        <option value="say">say</option>
-                        <option value="MCEdu">MCEdu</option>
-{#                        <option value="ID">ID</option>#}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="argument" class="arg-box" style="display:none;">
-                </td>
-                <td>
-                  <button
-                      type="button"
-                      class="execute-btn"
-                      data-machine-id="{{ device[0] }}"
-                      data-nickname="{{ device[1] }}"
-                    >
-                        Execute
-                  </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+    <tbody id="device-table-body">
+    </tbody>
     </table>
 
-    <h3 style="margin-top: 2em;">🔁 Bulk Action</h3>
-    <label>Action:
-        <select name="bulk_action" id="bulk_action">
-            <option value="none">none</option>
-            <option value="test">test</option>
-            <option value="shutdown">shutdown</option>
-            <option value="say">say</option>
-            <option value="MCEdu">MCEdu</option>
-{#            <option value="ID">ID</option>#}
-        </select>
-    </label>
-    <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
-    <br><br>
-    <button type="submit">Execute Bulk Action</button>
+    <!-- ------------------------------------------------------------------------------------- -->
 
     <hr>
-    <h3>⚫ Offline Devices (no ping in last 30s)</h3>
+    <h3>⚫ Offline Devices (no ping in last 15 s)</h3>
     <ul id="offline-list">
       <li>Loading…</li>
     </ul>
@@ -76,134 +51,19 @@
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const allCheckbox = document.getElementById('select_all');
-    const deviceCheckboxes = document.querySelectorAll('.device-checkbox');
-    const dropdowns = document.querySelectorAll('.action-dropdown');
-    const argBoxes = document.querySelectorAll('.arg-box');
-
-
-    // Toggle all checkboxes
-    allCheckbox.addEventListener('change', function () {
-        const isAll = allCheckbox.checked;
-
-        deviceCheckboxes.forEach(cb => cb.checked = isAll);
-
-        // Disable or enable dropdowns and arg boxes
-        dropdowns.forEach(dd => dd.disabled = isAll);
-        argBoxes.forEach(arg => {
-            arg.disabled = isAll;
-            if (isAll) arg.style.display = 'none';
-        });
-    });
-
-    // Show/hide argument field based on selected action
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener("change", () => {
-            const row = dropdown.closest("tr");
-            const argBox = row.querySelector(".arg-box");
-            const selected = dropdown.value;
-
-            if (["shutdown", "say"].includes(selected) && !dropdown.disabled) {
-                argBox.style.display = "inline-block";
-            } else {
-                argBox.style.display = "none";
-                argBox.value = "";
-            }
-        });
-    });
-
-    // Bulk argument box visibility
-    const bulkDropdown = document.getElementById("bulk_action");
-    const bulkArg = document.getElementById("bulk_argument");
-    bulkDropdown.addEventListener("change", () => {
-        if (["shutdown", "say"].includes(bulkDropdown.value)) {
-            bulkArg.style.display = "inline-block";
-        } else {
-            bulkArg.style.display = "none";
-            bulkArg.value = "";
-        }
-    });
-
-    // Fix individual dropdown behavior
-    document.querySelectorAll(".action-dropdown").forEach(dropdown => {
-        dropdown.addEventListener("change", () => {
-            const row = dropdown.closest("tr");
-            const argBox = row.querySelector(".arg-box");
-            const selected = dropdown.value;
-            if (["shutdown", "say"].includes(selected)) {
-                argBox.style.display = "inline-block";
-                argBox.setAttribute("name", "argument");
-            } else {
-                argBox.style.display = "none";
-                argBox.removeAttribute("name");
-            }
-        });
-    });
-
-    // per-device AJAX execution
-    document.querySelectorAll('.execute-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const row = btn.closest('tr');
-        const machineId = btn.dataset.machineId;
-        const nickname = btn.dataset.nickname || machineId;  // fallback to ID
-        const action = row.querySelector('.action-dropdown').value;
-        const argInput = row.querySelector('.arg-box');
-        const argument = (argInput && argInput.value) || '';
-
-        const form = new URLSearchParams();
-        form.append('machine_id', machineId);
-        form.append('action', action);
-        form.append('argument', argument);
-
-        fetch('{{ url_for("app_routes.send_action_device") }}', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: form.toString()
-        })
-        .then(r => r.json())
-        .then(json => {
-          if (json.status === 'success') {
-            alert(`✅ Sent "${json.sent}" to ${nickname}`);
-          } else {
-            alert(`⚠️ Error: ${json.message || 'unknown error'}`);
-          }
-        })
-        .catch(err => {
-          alert(`❌ Request failed: ${err}`);
-        });
-      });
-    });
-
-    function updateOffline() {
-      fetch('{{ url_for("app_routes.api_device_statuses") }}')
-        .then(r => r.json())
-        .then(data => {
-          const offline = data.statuses.filter(d => !d.online);
-          const ul = document.getElementById('offline-list');
-          ul.innerHTML = '';
-          if (offline.length === 0) {
-            ul.innerHTML = '<li>None — all registered devices are online.</li>';
-          } else {
-            offline.forEach(d => {
-              const li = document.createElement('li');
-              const last = d.last_active
-                ? new Date(d.last_active).toLocaleTimeString()
-                : 'unknown';
-              li.textContent = `${d.nickname} – last seen at ${last}`;
-              ul.appendChild(li);
-            });
-          }
-        })
-        .catch(console.error);
-    }
-
-    // poll every 5s
-    setInterval(updateOffline, 5000);
-    updateOffline();
-
-
-});
-
-
+  window.FLASK_ROUTES = {
+    api_device_statuses: "{{ url_for('app_routes.api_device_statuses') }}",
+    send_action_device: "{{ url_for('app_routes.send_action_device') }}"
+  };
 </script>
+
+<script src="{{ url_for('static', filename='js/actions.js') }}"></script>
+
+
+<style>
+    #sel_bulk_line {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+    }
+</style>

@@ -151,11 +151,11 @@ def api_device_statuses():
     now = datetime.now()
     for machine_id, nickname, *_ in get_registered_devices():
         last = last_active.get(machine_id)
-        online = bool(last and (now - last).total_seconds() <= 30)
+        online = bool(last and (now - last).total_seconds() <= 15)
         statuses.append({
             "machine_id": machine_id,
-            "nickname":    nickname,
-            "online":      online,
+            "nickname": nickname,
+            "online": online,
             "last_active": last.isoformat() if last else None
         })
     return jsonify(statuses=statuses)
