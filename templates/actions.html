@@ -55,9 +55,14 @@
     api_device_statuses: "{{ url_for('app_routes.api_device_statuses') }}",
     send_action_device: "{{ url_for('app_routes.send_action_device') }}"
   };
+
+  document.addEventListener("DOMContentLoaded", function () {
+      const script = document.createElement('script');
+      script.src = "{{ url_for('static', filename='js/actions.js') }}";
+      document.head.appendChild(script);
+  });
 </script>
 
-<script src="{{ url_for('static', filename='js/actions.js') }}"></script>
 
 
 <style>
