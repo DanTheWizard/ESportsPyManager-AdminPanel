@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_user, logout_user, login_required, current_user
 from database import register_device, get_registered_devices, remove_device
 from users import validate_login
-from src.mqtt_client import connected_devices, hostnames
+from src.mqtt_client import connected_devices, hostnames, last_active
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 
@@ -69,7 +69,7 @@ def manage_devices():
 
     return render_template("manage_devices.html", unregistered=unregistered, registered=registered)
 
-@app_routes.route('/register_from_manage', methods=['POST'])
+@app_routes.route('/api/register_from_manage', methods=['POST'])
 @login_required
 def register_from_manage():
     machine_id = request.form.get("machine_id")
@@ -83,7 +83,7 @@ def register_from_manage():
 
     return redirect(url_for('app_routes.manage_devices'))
 
-@app_routes.route('/deregister', methods=['POST'])
+@app_routes.route('/api/deregister', methods=['POST'])
 @login_required
 def deregister_device():
     machine_id = request.form.get("machine_id")
@@ -103,7 +103,7 @@ def actions_page():
     devices = sorted(devices, key=lambda d: d[1].lower())  # Sort by nickname
     return render_template("actions.html", devices=devices)
 
-@app_routes.route('/send_action', methods=['POST'])
+@app_routes.route('/api/send_action', methods=['POST'])
 @login_required
 def send_action():
     machine_ids = request.form.getlist('selected_devices')
@@ -126,7 +126,7 @@ def send_action():
 
 
 
-@app_routes.route('/send_action_device', methods=['POST'])
+@app_routes.route('/api/send_action_device', methods=['POST'])
 @login_required
 def send_action_device():
     machine_id = request.form.get("machine_id")
@@ -142,3 +142,20 @@ def send_action_device():
 
     mqtt_client.publish(f"PC/{machine_id}/action", final)
     return jsonify(status="success", sent=final, to=machine_id), 200
+
+
+@app_routes.route('/api/device_statuses')
+@login_required
+def api_device_statuses():
+    statuses = []
+    now = datetime.now()
+    for machine_id, nickname, *_ in get_registered_devices():
+        last = last_active.get(machine_id)
+        online = bool(last and (now - last).total_seconds() <= 30)
+        statuses.append({
+            "machine_id": machine_id,
+            "nickname":    nickname,
+            "online":      online,
+            "last_active": last.isoformat() if last else None
+        })
+    return jsonify(statuses=statuses)

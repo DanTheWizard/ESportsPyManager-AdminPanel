@@ -30,7 +30,7 @@
                         <option value="shutdown">shutdown</option>
                         <option value="say">say</option>
                         <option value="MCEdu">MCEdu</option>
-                        <option value="ID">ID</option>
+{#                        <option value="ID">ID</option>#}
                     </select>
                 </td>
                 <td>
@@ -59,12 +59,19 @@
             <option value="shutdown">shutdown</option>
             <option value="say">say</option>
             <option value="MCEdu">MCEdu</option>
-            <option value="ID">ID</option>
+{#            <option value="ID">ID</option>#}
         </select>
     </label>
-    <input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
+    <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
     <br><br>
     <button type="submit">Execute Bulk Action</button>
+
+    <hr>
+    <h3>⚫ Offline Devices (no ping in last 30s)</h3>
+    <ul id="offline-list">
+      <li>Loading…</li>
+    </ul>
+
 </form>
 
 
@@ -168,6 +175,32 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
+    function updateOffline() {
+      fetch('{{ url_for("app_routes.api_device_statuses") }}')
+        .then(r => r.json())
+        .then(data => {
+          const offline = data.statuses.filter(d => !d.online);
+          const ul = document.getElementById('offline-list');
+          ul.innerHTML = '';
+          if (offline.length === 0) {
+            ul.innerHTML = '<li>None — all registered devices are online.</li>';
+          } else {
+            offline.forEach(d => {
+              const li = document.createElement('li');
+              const last = d.last_active
+                ? new Date(d.last_active).toLocaleTimeString()
+                : 'unknown';
+              li.textContent = `${d.nickname} – last seen at ${last}`;
+              ul.appendChild(li);
+            });
+          }
+        })
+        .catch(console.error);
+    }
+
+    // poll every 5s
+    setInterval(updateOffline, 5000);
+    updateOffline();
 
 
 });

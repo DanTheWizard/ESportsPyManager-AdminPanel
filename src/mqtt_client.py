@@ -1,19 +1,23 @@
 import paho.mqtt.client as mqtt
 from config import *
+from datetime import datetime
 from threading import Thread
 import time
 
 connected_devices = set()   # Will contain active machine_ids
 hostnames = {}              # machine_id -> hostname
+last_active = {}            # machine_id -> datetime
+
 
 MQTT_TOPIC = "PC/#"
-
+LASTACTIVE_TOPIC = "LastActive/#"
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, transport="websockets")
 
 def on_connect(wsclient, userdata, flags, reason_code, properties):
     print("[MQTT] Connected")
     wsclient.subscribe(MQTT_TOPIC)
+    wsclient.subscribe(LASTACTIVE_TOPIC)
 
 
 
@@ -30,6 +34,11 @@ def on_message(wsclient, userdata, msg):
 
             if len(parts) == 3 and parts[2] == "hostname":
                 hostnames[machine_id] = payload
+    elif topic.startswith("LastActive/") and topic.endswith("/time"):
+        _, machine_id, _ = topic.split('/')
+        last_active[machine_id] = datetime.now()
+        print(f"[MQTT] {machine_id} last seen at {last_active[machine_id]}")
+
 
 def mqtt_background_loop():
     client.username_pw_set(username=WS_USERNAME, password=WS_PASSWORD)
