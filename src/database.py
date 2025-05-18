@@ -64,3 +64,10 @@ def get_unregistered_devices():
             ORDER BY LOWER(machine_id) ASC
         ''')
         return cursor.fetchall()
+
+
+def remove_device(machine_id):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM devices WHERE machine_id = ?', (machine_id,))
+        conn.commit()

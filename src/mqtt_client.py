@@ -17,19 +17,12 @@ def on_connect(wsclient, userdata, flags, reason_code, properties):
 
 
 
-
-def on_message(client, userdata, msg):
-    topic = msg.topic
-
-
 def on_message(wsclient, userdata, msg):
     topic = msg.topic
     payload = msg.payload.decode()
     if topic.startswith("PC/"):
         machine_id = topic.split('/')[1]
-        connected_devices.add(machine_id)
-        print(f"[MQTT] Detected device: {machine_id}") # TODO Set This to debug print
-
+        connected_devices.add(machine_id) # Detects the computers by MACHINE_ID
         parts = topic.split('/')
         if len(parts) >= 2:
             machine_id = parts[1]

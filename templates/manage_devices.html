@@ -1,0 +1,46 @@
+<h2>📋 Unregistered Devices (Online Only)</h2>
+<table border="1">
+    <tr>
+        <th>Machine ID</th>
+        <th>Hostname</th>
+        <th>Action</th>
+    </tr>
+    {% for device in unregistered %}
+    <tr>
+        <td>{{ device.machine_id }}</td>
+        <td>{{ device.hostname }}</td>
+        <td>
+            <form method="POST" action="{{ url_for('app_routes.register_from_manage') }}">
+                <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
+                <input type="text" name="nickname" placeholder="Enter nickname" required>
+                <button type="submit">Register</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h2>🔐 Registered Devices</h2>
+<table border="1">
+    <tr>
+        <th>Nickname</th>
+        <th>Machine ID</th>
+        <th>Registered</th>
+        <th>Action</th>
+    </tr>
+    {% for device in registered %}
+    <tr>
+        <td>{{ device.nickname }}</td>
+        <td>{{ device.machine_id }}</td>
+        <td>{{ device.registered_at }}</td>
+        <td>
+            <form method="POST" action="{{ url_for('app_routes.deregister_device') }}">
+                <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
