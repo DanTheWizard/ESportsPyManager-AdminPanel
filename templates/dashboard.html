@@ -2,10 +2,147 @@
 {% block title %}Dashboard - Admin Panel{% endblock %}
 {% block content %}
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <h1>Welcome, {{ user }}!</h1>
 
 
-<h1>Welcome, {{ user }}!</h1>
-<a href="{{ url_for('app_routes.logout') }}">Logout</a>
+    <h2>📊 System Summary</h2>
+
+    <div style="display: flex; gap: 2em; margin-top: 1em;">
+        <div style="border: 1px solid #ccc; padding: 1em; border-radius: 10px; min-width: 150px;">
+            <h3>Total Devices</h3>
+            <p style="font-size: 2em; margin: 0;" id="count-total">{{ total }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 1em; border-radius: 10px; min-width: 150px;">
+            <h3>🟢 Online</h3>
+            <p style="font-size: 2em; margin: 0;" id="count-online">{{ online }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 1em; border-radius: 10px; min-width: 150px;">
+            <h3>⚫ Offline</h3>
+            <p style="font-size: 2em; margin: 0;" id="count-offline">{{ offline }}</p>
+        </div>
+        <div style="border: 1px solid #ccc; padding: 1em; border-radius: 10px; min-width: 150px;">
+            <h3>❓ Unregistered</h3>
+            <p style="font-size: 2em; margin: 0;" id="count-unregistered">0</p>
+        </div>
+    </div>
+
+{#    <!-- 📈 Chart placeholder -->#}
+    {% if ENABLE_DASH_CHART %}
+    <h3 style="margin-top: 2em;">📈 CPU and RAM Usage Over Time</h3>
+    <div style="max-width: 1000px; margin-top: 2em;">
+        <canvas id="usageHistoryChart" width="1000" height="300"></canvas>
+    </div>
+    {% endif %}
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateDashboardStats() {
+              fetch("{{ url_for('app_routes.api_dashboard_stats') }}")
+                .then(res => res.json())
+                .then(data => {
+                  document.getElementById("count-total").textContent = data.total;
+                  document.getElementById("count-online").textContent = data.online;
+                  document.getElementById("count-offline").textContent = data.offline;
+                  document.getElementById("count-unregistered").textContent = data.unregistered;
+                })
+                .catch(err => console.error("Failed to refresh dashboard stats:", err));
+            }
+
+
+          updateDashboardStats();
+          setInterval(updateDashboardStats, 5000);
+        });
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      console.log("✅ Dashboard JS loaded");
+
+      let usageHistoryChart = null;
+
+      function updateUsageHistoryChart() {
+        fetch("{{ url_for('app_routes.api_avg_usage_history') }}")
+          .then(res => res.json())
+          .then(data => {
+            const labels = data.map(d => d.time);
+            const cpuData = data.map(d => d.cpu);
+            const ramData = data.map(d => d.ram);
+
+            const allDatasets = [
+              {
+                label: "Average CPU%",
+                data: cpuData,
+                borderColor: "rgba(255,99,132,0.7)",
+                backgroundColor: "rgba(255,99,132,0.1)",
+                fill: true,
+                tension: 0.3
+              },
+              {
+                label: "Average RAM%",
+                data: ramData,
+                borderColor: "rgba(54,162,235,0.7)",
+                backgroundColor: "rgba(54,162,235,0.1)",
+                fill: true,
+                tension: 0.3
+              }
+            ];
+
+            if (!usageHistoryChart) {
+              const ctx = document.getElementById("usageHistoryChart").getContext("2d");
+              usageHistoryChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                  labels: labels,
+                  datasets: allDatasets
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  animation: {
+                    duration: 300,
+                    easing: 'linear'
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100
+                    }
+                  }
+                }
+              });
+            } else {
+                // Only add the last data point
+                const last = data[data.length - 1];
+
+                usageHistoryChart.data.labels.push(last.time);
+                usageHistoryChart.data.datasets[0].data.push(last.cpu);
+                usageHistoryChart.data.datasets[1].data.push(last.ram);
+
+                // Limit to last 30 points (if needed)
+                if (usageHistoryChart.data.labels.length > 30) {
+                  usageHistoryChart.data.labels.shift();
+                  usageHistoryChart.data.datasets[0].data.shift();
+                  usageHistoryChart.data.datasets[1].data.shift();
+                }
+
+                usageHistoryChart.update();
+            }
+          })
+          .catch(err => console.error("Chart update failed:", err));
+      }
+
+      updateUsageHistoryChart();
+      setInterval(updateUsageHistoryChart, {{DASH_CHART_REFRESH_TIMEOUT_MS}});
+    });
+    </script>
+
+
 
 
 {% endblock %}

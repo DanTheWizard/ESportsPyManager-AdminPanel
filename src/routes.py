@@ -28,11 +28,6 @@ def login():
     return render_template('login.html')
 
 
-@app_routes.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template('dashboard.html', user=current_user.id)
-
 
 @app_routes.route('/logout')
 @login_required
@@ -40,6 +35,106 @@ def logout():
     logout_user()
     return redirect(url_for('app_routes.login'))
 
+
+########################################################################################################################
+
+# Dashboard Section
+@app_routes.route('/dashboard')
+@login_required
+def dashboard():
+    from src.mqtt_client import last_active
+    now = datetime.now()
+
+    registered = get_registered_devices()
+    total = len(registered)
+    online = 0
+    offline = 0
+
+    for machine_id, *_ in registered:
+        last = last_active.get(machine_id)
+        if last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT:
+            online += 1
+        else:
+            offline += 1
+
+    return render_template(
+        "dashboard.html",
+        total=total,
+        online=online,
+        offline=offline,
+        user=current_user.id,
+        DASH_CHART_REFRESH_TIMEOUT_MS=(DASH_CHART_REFRESH_TIMEOUT * 1000)
+    )
+
+@app_routes.route('/api/dashboard_stats')
+@login_required
+def api_dashboard_stats():
+    from src.mqtt_client import last_active
+    now = datetime.now()
+
+    registered = get_registered_devices()
+    registered_ids = {r[0] for r in registered}
+    total = len(registered)
+    online = 0
+    unregistered_online = 0
+
+    for machine_id in connected_devices:
+        last = last_active.get(machine_id)
+        if last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT:
+            if machine_id in registered_ids:
+                online += 1
+            else:
+                unregistered_online += 1
+
+    return jsonify({
+        "total": total,
+        "online": online,
+        "offline": total - online,
+        "unregistered": unregistered_online
+    })
+
+@app_routes.route('/api/device_usage_data')
+@login_required
+def api_device_usage_data():
+    from src.mqtt_client import device_status, last_active
+    now = datetime.now()
+
+    usage = []
+    for machine_id, nickname, *_ in get_registered_devices():
+        last = last_active.get(machine_id)
+        if not last or (now - last).total_seconds() > OFFLINE_DEVICE_TIMEOUT:
+            continue  # Skip offline
+
+        stats = device_status.get(machine_id, {})
+        try:
+            cpu = float(stats.get("cpu", 0))
+            ram = float(stats.get("ram", 0))
+        except ValueError:
+            cpu = ram = 0.0
+
+        usage.append({
+            "nickname": nickname,
+            "cpu": cpu,
+            "ram": ram
+        })
+
+    return jsonify(devices=usage)
+
+@app_routes.route("/api/avg_usage_history")
+@login_required
+def api_avg_usage_history():
+    from src.mqtt_client import history_samples
+    return jsonify([
+        {
+            "time": ts.strftime("%H:%M:%S"),
+            "cpu": round(cpu, 2),
+            "ram": round(ram, 2)
+        }
+        for ts, cpu, ram in history_samples
+    ])
+
+
+########################################################################################################################
 
 @app_routes.route('/manage-devices')
 @login_required
