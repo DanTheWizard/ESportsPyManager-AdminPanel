@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin Panel{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Add global CSS, fonts, etc. here -->
+</head>
+<body>
+  <header>
+    <h1>⚙️ ESports Admin Panel</h1>
+    <nav>
+      <a href="{{ url_for('app_routes.dashboard') }}">Dashboard</a> |
+      <a href="{{ url_for('app_routes.actions_page') }}">Actions</a> |
+      <a href="{{ url_for('app_routes.overview_page') }}">Overview</a> |
+      <a href="{{ url_for('app_routes.manage_devices') }}">Manage Devices</a> |
+      <a href="{{ url_for('app_routes.logout') }}">Logout</a>
+    </nav>
+    <hr>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer style="margin-top: 2em;">
+    <hr>
+    <p style="text-align:center;">&copy; {{ now().year }} DanTheWizard - ESports Python Admin Panel</p>
+  </footer>
+</body>
+</html>

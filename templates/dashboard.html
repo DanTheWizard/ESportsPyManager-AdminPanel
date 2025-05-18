@@ -1,10 +1,11 @@
-<!doctype html>
-<html lang="">
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
-    <h1>Welcome, {{ user }}!</h1>
-    <a href="{{ url_for('app_routes.logout') }}">Logout</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Dashboard - Admin Panel{% endblock %}
+{% block content %}
+
+
+
+<h1>Welcome, {{ user }}!</h1>
+<a href="{{ url_for('app_routes.logout') }}">Logout</a>
+
+
+{% endblock %}

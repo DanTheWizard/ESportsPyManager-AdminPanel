@@ -1,3 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Device Actions - Admin Panel{% endblock %}
+{% block content %}
+
+
+
+<h2>🟢 Online Devices</h2>
+
+
+
 <h2>Device Actions</h2>
 
 <form method="POST" action="{{ url_for('app_routes.send_action') }}">
@@ -75,3 +85,8 @@
         gap: 1em;
     }
 </style>
+
+
+
+
+{% endblock %}

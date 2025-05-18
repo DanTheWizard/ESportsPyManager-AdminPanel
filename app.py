@@ -5,6 +5,8 @@ from users import load_user
 from database import init_db
 from threading import Thread
 from src.mqtt_client import mqtt_background_loop
+from datetime import datetime
+from config import SECRET_KEY
 
 # before app.run(...)
 init_db()
@@ -15,7 +17,11 @@ mqtt_thread.daemon = True
 mqtt_thread.start()
 
 app = Flask(__name__)
-app.secret_key = "super-secret-key"  # Use os.getenv in production
+app.secret_key = SECRET_KEY  # Use os.getenv in production
+
+@app.context_processor
+def inject_now():
+    return {'now': lambda: datetime.now()}
 
 # Flask-Login Setup
 login_manager = LoginManager()
