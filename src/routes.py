@@ -129,9 +129,10 @@ def api_avg_usage_history():
         {
             "time": ts.strftime("%H:%M:%S"),
             "cpu": round(cpu, 2),
-            "ram": round(ram, 2)
+            "ram": round(ram, 2),
+            "count": count
         }
-        for ts, cpu, ram in history_samples
+        for ts, cpu, ram, count in history_samples
     ])
 
 

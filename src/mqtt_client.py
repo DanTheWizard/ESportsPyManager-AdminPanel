@@ -96,7 +96,8 @@ def update_average_history():
     avg_cpu = sum(cpu_values) / len(cpu_values)
     avg_ram = sum(ram_values) / len(ram_values)
 
-    history_samples.append((timestamp, avg_cpu, avg_ram))
+    history_samples.append((timestamp, avg_cpu, avg_ram, len(cpu_values)))
+
 
     # Trim old entries
     cutoff = timestamp - history_window

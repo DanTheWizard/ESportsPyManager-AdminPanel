@@ -41,108 +41,142 @@
 
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             function updateDashboardStats() {
-              fetch("{{ url_for('app_routes.api_dashboard_stats') }}")
-                .then(res => res.json())
-                .then(data => {
-                  document.getElementById("count-total").textContent = data.total;
-                  document.getElementById("count-online").textContent = data.online;
-                  document.getElementById("count-offline").textContent = data.offline;
-                  document.getElementById("count-unregistered").textContent = data.unregistered;
-                })
-                .catch(err => console.error("Failed to refresh dashboard stats:", err));
+                fetch("{{ url_for('app_routes.api_dashboard_stats') }}")
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById("count-total").textContent = data.total;
+                        document.getElementById("count-online").textContent = data.online;
+                        document.getElementById("count-offline").textContent = data.offline;
+                        document.getElementById("count-unregistered").textContent = data.unregistered;
+                    })
+                    .catch(err => console.error("Failed to refresh dashboard stats:", err));
             }
 
 
-          updateDashboardStats();
-          setInterval(updateDashboardStats, 5000);
+            updateDashboardStats();
+            setInterval(updateDashboardStats, 5000);
         });
     </script>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      console.log("✅ Dashboard JS loaded");
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("✅ Dashboard JS loaded");
 
-      let usageHistoryChart = null;
+        let usageHistoryChart = null;
 
-      function updateUsageHistoryChart() {
-        fetch("{{ url_for('app_routes.api_avg_usage_history') }}")
-          .then(res => res.json())
-          .then(data => {
-            const labels = data.map(d => d.time);
-            const cpuData = data.map(d => d.cpu);
-            const ramData = data.map(d => d.ram);
+        function updateUsageHistoryChart() {
+            fetch("{{ url_for('app_routes.api_avg_usage_history') }}")
+                .then(res => res.json())
+                .then(data => {
+                    const labels = data.map(d => d.time);
+                    const cpuData = data.map(d => d.cpu);
+                    const ramData = data.map(d => d.ram);
 
-            const allDatasets = [
-              {
-                label: "Average CPU%",
-                data: cpuData,
-                borderColor: "rgba(255,99,132,0.7)",
-                backgroundColor: "rgba(255,99,132,0.1)",
-                fill: true,
-                tension: 0.3
-              },
-              {
-                label: "Average RAM%",
-                data: ramData,
-                borderColor: "rgba(54,162,235,0.7)",
-                backgroundColor: "rgba(54,162,235,0.1)",
-                fill: true,
-                tension: 0.3
-              }
-            ];
+                    const allDatasets = [{
+                            label: "Average CPU%",
+                            data: cpuData,
+                            borderColor: "rgba(255,99,132,0.7)",
+                            backgroundColor: "rgba(255,99,132,0.1)",
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: "Average RAM%",
+                            data: ramData,
+                            borderColor: "rgba(54,162,235,0.7)",
+                            backgroundColor: "rgba(54,162,235,0.1)",
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: "Device Count",
+                            data: data.map(d => d.count),
+                            borderColor: "rgba(0,0,0,0.5)",
+                            backgroundColor: "rgba(0,0,0,0.1)",
+                            yAxisID: "y2",
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ];
 
-            if (!usageHistoryChart) {
-              const ctx = document.getElementById("usageHistoryChart").getContext("2d");
-              usageHistoryChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                  labels: labels,
-                  datasets: allDatasets
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  animation: {
-                    duration: 300,
-                    easing: 'linear'
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100
+                    if (!usageHistoryChart) {
+                        const ctx = document.getElementById("usageHistoryChart").getContext("2d");
+                        usageHistoryChart = new Chart(ctx, {
+                            type: "line",
+                            data: {
+                                labels: labels,
+                                datasets: allDatasets
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                animation: {
+                                    duration: 300,
+                                    easing: 'linear'
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 100,
+                                        title: {
+                                            display: true,
+                                            text: "CPU/RAM %"
+                                        }
+                                    },
+                                    y2: {
+                                        position: 'right',
+                                        beginAtZero: true,
+                                        min: 0,
+                                        suggestedMax: 5,
+                                        ticks: {
+                                            // Dynamically set the max based on the data
+                                            callback: function(value, index, values) {
+                                                return Number.isInteger(value) ? value : '';
+                                            },
+                                            stepSize: 1
+                                        },
+                                        grid: {
+                                            drawOnChartArea: false
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: "Device Count"
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        // Only add the last data point
+                        const last = data[data.length - 1];
+                        const maxCount = Math.max(...usageHistoryChart.data.datasets[2].data, 4);
+                        usageHistoryChart.options.scales.y2.max = maxCount + 1;
+
+                        usageHistoryChart.data.labels.push(last.time);
+                        usageHistoryChart.data.datasets[0].data.push(last.cpu);
+                        usageHistoryChart.data.datasets[1].data.push(last.ram);
+                        usageHistoryChart.data.datasets[2].data.push(last.count);
+
+                        // Limit to last 30 points (if needed)
+                        if (usageHistoryChart.data.labels.length > 30) {
+                            usageHistoryChart.data.labels.shift();
+                            usageHistoryChart.data.datasets[0].data.shift();
+                            usageHistoryChart.data.datasets[1].data.shift();
+                            usageHistoryChart.data.datasets[2].data.shift();
+                        }
+
+                        usageHistoryChart.update();
                     }
-                  }
-                }
-              });
-            } else {
-                // Only add the last data point
-                const last = data[data.length - 1];
+                })
+                .catch(err => console.error("Chart update failed:", err));
+        }
 
-                usageHistoryChart.data.labels.push(last.time);
-                usageHistoryChart.data.datasets[0].data.push(last.cpu);
-                usageHistoryChart.data.datasets[1].data.push(last.ram);
-
-                // Limit to last 30 points (if needed)
-                if (usageHistoryChart.data.labels.length > 30) {
-                  usageHistoryChart.data.labels.shift();
-                  usageHistoryChart.data.datasets[0].data.shift();
-                  usageHistoryChart.data.datasets[1].data.shift();
-                }
-
-                usageHistoryChart.update();
-            }
-          })
-          .catch(err => console.error("Chart update failed:", err));
-      }
-
-      updateUsageHistoryChart();
-      setInterval(updateUsageHistoryChart, {{DASH_CHART_REFRESH_TIMEOUT_MS}});
+        updateUsageHistoryChart();
+        setInterval(updateUsageHistoryChart, {{ DASH_CHART_REFRESH_TIMEOUT_MS }});
     });
     </script>
-
-
 
 
 {% endblock %}
