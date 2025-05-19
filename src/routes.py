@@ -88,15 +88,16 @@ def manage_devices():
 
     # Registered = in DB (some may be offline) - Sorted by Nickname
     registered = []
-    for machine_id, nickname, registered_at, last_seen in registered_rows:
+    for machine_id, nickname, registered_at, last_seen, tag in registered_rows:
         dt = datetime.fromisoformat(registered_at)
         registered.append({
             "machine_id": machine_id,
             "nickname": nickname,
             "registered_at": dt.strftime("%m/%d/%y %I:%M%p").lstrip("0").replace("/0", "/"),
+            "tag": tag,
         })
 
-    return render_template("manage_devices.html", unregistered=unregistered, registered=registered)
+    return render_template("manage_devices.html", unregistered=unregistered, registered=registered, DEVICE_TAGS=DEVICE_TAGS)
 
 ########################################################################################################################
 

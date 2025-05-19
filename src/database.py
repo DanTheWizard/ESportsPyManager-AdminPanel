@@ -13,20 +13,23 @@ def init_db():
                 machine_id TEXT UNIQUE NOT NULL,
                 nickname TEXT,
                 registered_at TEXT,
-                last_seen TEXT
+                last_seen TEXT,
+                tag TEXT
             )
         ''')
         conn.commit()
 
-def register_device(machine_id, nickname):
+def register_device(machine_id, nickname, tag):
     now = datetime.now().isoformat()
     with sqlite3.connect(DB_PATH) as conn:
+        print(tag)
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT OR IGNORE INTO devices (machine_id, nickname, registered_at, last_seen)
-            VALUES (?, ?, ?, ?)
-        ''', (machine_id, nickname, now, now))
+            INSERT OR IGNORE INTO devices (machine_id, nickname, registered_at, last_seen, tag)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (machine_id, nickname, now, now, tag))
         conn.commit()
+
 
 def update_last_seen(machine_id):
     now = datetime.now().isoformat()
@@ -47,7 +50,7 @@ def get_registered_devices():
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute('''
-            SELECT machine_id, nickname, registered_at, last_seen
+            SELECT machine_id, nickname, registered_at, last_seen, tag
             FROM devices
             WHERE nickname IS NOT NULL AND nickname != ''
             ORDER BY LOWER(nickname) ASC

@@ -6,6 +6,9 @@ import os
 
 load_dotenv()                                                # Load the variables from the .env file
 
+# config.py
+DEVICE_TAGS = ["Lab", "Office", "Library", "Admin", "Test Bench"]
+
 
 ADMIN_USERNAME   = os.getenv("ADMIN_USERNAME")                              ;"The Admin Username for login"
 ADMIN_PASSWORD   = generate_password_hash(os.getenv("ADMIN_PASSWORD"))      ;"Admin Password for Login"

@@ -84,10 +84,12 @@ def api_avg_usage_history():
 @login_required
 def register_from_manage():
     machine_id = request.form.get("machine_id")
-    nickname = request.form.get("nickname")
+    nickname   = request.form.get("nickname")
+    tag        = request.form.get("tag")
+    print("From:", tag)
 
     if machine_id and nickname:
-        register_device(machine_id, nickname)
+        register_device(machine_id, nickname, tag)
         flash(f"Device {machine_id} registered as '{nickname}'", "success")
     else:
         flash("Missing fields", "error")

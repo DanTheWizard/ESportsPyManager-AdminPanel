@@ -8,30 +8,42 @@
     <tr>
         <th>Machine ID</th>
         <th>Hostname</th>
-        <th>Action</th>
+        <th>Tag</th>
+        <th>Nickname</th>
     </tr>
     {% for device in unregistered %}
-    <tr>
-        <td>
-            <button
-                type="button"
-                class="identify-btn"
-                data-machine-id="{{ device.machine_id }}"
-                title="Make this PC identify itself"
-            >
-                Identify
-            </button>
-            {{ device.machine_id }}
-        </td>
-        <td>{{ device.hostname }}</td>
-        <td>
-            <form method="POST" action="{{ url_for('api_routes.register_from_manage') }}">
+    <form method="POST" action="{{ url_for('api_routes.register_from_manage') }}">
+        <tr>
+            <td>
+                <button
+                    type="button"
+                    class="identify-btn"
+                    data-machine-id="{{ device.machine_id }}"
+                    title="Make this PC identify itself"
+                >
+                    Identify
+                </button>
+                {{ device.machine_id }}
+            </td>
+            <td>{{ device.hostname }}</td>
+            <td>
+                <label>
+                    <select name="tag">
+                        {% for tag in DEVICE_TAGS %}
+                            <option value="{{ tag }}">{{ tag }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </td>
+            <td>
                 <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
-                <input type="text" name="nickname" placeholder="Enter nickname" required>
+                <label>
+                    <input type="text" name="nickname" placeholder="Enter nickname" required>
+                </label>
                 <button type="submit">Register</button>
-            </form>
-        </td>
-    </tr>
+            </td>
+        </tr>
+    </form>
     {% endfor %}
 </table>
 
@@ -42,7 +54,8 @@
     <tr>
         <th>Nickname</th>
         <th>Machine ID</th>
-        <th>Registered</th>
+        <th>Registered At</th>
+        <th>Tag</th>
         <th>Action</th>
     </tr>
     {% for device in registered %}
@@ -50,6 +63,7 @@
         <td>{{ device.nickname }}</td>
         <td>{{ device.machine_id }}</td>
         <td>{{ device.registered_at }}</td>
+        <td>{{ device.tag }}</td>
         <td>
             <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
                 <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
