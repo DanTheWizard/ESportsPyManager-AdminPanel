@@ -111,6 +111,7 @@ function updateDeviceTable() {
           tr.innerHTML = `
             <td><input type="checkbox" name="selected_devices" value="${d.machine_id}" class="device-checkbox"></td>
             <td>${d.nickname}</td>
+            <td>${d.tag}</td>
             <td>${d.machine_id}</td>
             <td>
               <select class="action-dropdown">

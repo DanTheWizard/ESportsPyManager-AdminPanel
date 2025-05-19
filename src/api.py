@@ -157,11 +157,12 @@ def send_action_device():
 def api_device_statuses():
     statuses = []
     now = datetime.now()
-    for machine_id, nickname, *_ in get_registered_devices():
+    for machine_id, nickname, *_, tag in get_registered_devices():
         last = last_active.get(machine_id)
         online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
         statuses.append({
             "machine_id": machine_id,
+            "tag": tag,
             "nickname": nickname,
             "online": online,
             "last_active": last.isoformat() if last else None
