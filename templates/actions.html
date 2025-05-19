@@ -16,8 +16,6 @@
             <input type="checkbox" id="select_all"> All PCs
         </label>
 
-    <!-- ------------------------------------------------------------------------------------- -->
-
         <h3>🔁 Bulk Action</h3> {# Originally with style="margin-top: 2em;" #}
         <label>Action:
             <select name="bulk_action" id="bulk_action">
@@ -26,7 +24,6 @@
                 <option value="shutdown">shutdown</option>
                 <option value="say">say</option>
                 <option value="MCEdu">MCEdu</option>
-    {#            <option value="ID">ID</option>#}
             </select>
         </label>
         <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
@@ -36,7 +33,7 @@
     </div>
     <!-- ------------------------------------------------------------------------------------- -->
 
-    <table border="1" style="width:100%; margin-top: 1em;">
+    <table border="1"> {# Originally: style="width:100%; margin-top: 1em;" #}
         <thead>
             <tr>
                 <th>Select</th>

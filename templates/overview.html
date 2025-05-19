@@ -4,41 +4,70 @@
 {% block content %}
 
 
-<h2>🟢 Online Devices</h2>
-<table border="1" style="width:100%; margin-top: 1em;">
-    <thead>
-        <tr>
-            <th>Nickname</th>
-            <th>Tag</th>
-            <th>CPU %</th>
-            <th>RAM %</th>
-            <th>User</th>
-            <th>Active App</th>
-        </tr>
-    </thead>
-    <tbody id="overview-online-body">
-        <tr>
-            <td colspan="6">Loading online devices...</td>
-        </tr>
-    </tbody>
-</table>
+    <h2>🟢 Online Devices</h2>
+    <table class="overview_online"> {# border="1" style="width:100%; margin-top: 1em;" #}
+        <thead>
+            <tr>
+                <th class="nickname">Nickname</th>
+                <th class="tag"     >Tag</th>
+                <th class="CPU_perc">CPU %</th>
+                <th class="RAM_perc">RAM %</th>
+                <th class="username">User</th>
+                <th class="ACTV_app">Active App</th>
+            </tr>
+        </thead>
+        <tbody id="overview-online-body">
+            <tr>
+                <td colspan="6">Loading online devices...</td>
+            </tr>
+        </tbody>
+    </table>
 
-<h3 style="margin-top: 2em;">⚫ Offline Devices (no ping in last {{ OFFLINE_DEVICE_TIMEOUT }} s)</h3>
-<ul id="overview-offline-list">
-    <li>Loading offline list...</li>
-</ul>
+    <h3 style="margin-top: 2em;">⚫ Offline Devices (no ping in last {{ OFFLINE_DEVICE_TIMEOUT }} s)</h3>
+    <ul id="overview-offline-list">
+        <li>Loading the offline list...</li>
+    </ul>
 
-<script>
-    window.FLASK_ROUTES = {
-        api_overview_data: "{{ url_for('app_routes.api_overview_data') }}",
-    };
-    window.REFRESH_TIMEOUT = {{ REFRESH_TIMEOUT_MS }}
+    <script>
+        window.FLASK_ROUTES = {
+            api_overview_data: "{{ url_for('app_routes.api_overview_data') }}",
+        };
+        window.REFRESH_TIMEOUT = {{ REFRESH_TIMEOUT_MS }}
 
-    document.addEventListener("DOMContentLoaded", function() {
-        const script = document.createElement('script');
-        script.src = "{{ url_for('static', filename='js/overview.js') }}";
-        document.head.appendChild(script);
-    });
-</script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const script = document.createElement('script');
+            script.src = "{{ url_for('static', filename='js/overview.js') }}";
+            document.head.appendChild(script);
+        });
+    </script>
+
+    <style>
+        .overview_online {
+          width: 100%; /* Make the table fill the container */
+          border-collapse: collapse; /* Remove default cell spacing */
+        }
+
+        .overview_online th, .overview_online td {
+          border: 1px solid black; /* Add a border for visibility */
+        }
+
+        .overview_online .nickname,
+        .overview_online .tag      {
+          width: 10%;
+        }
+
+        .overview_online .CPU_perc,
+        .overview_online .RAM_perc {
+          width: 5%;
+        }
+
+        .overview_online .username {
+          width: 15%;
+        }
+
+        .overview_online .ACTV_app {
+          width: 55%;
+        }
+    </style>
 
 {% endblock %}
