@@ -6,38 +6,39 @@
 
 <h2>🟢 Online Devices</h2>
 <table border="1" style="width:100%; margin-top: 1em;">
-  <thead>
-    <tr>
-      <th>Nickname</th>
-      <th>CPU %</th>
-      <th>RAM %</th>
-      <th>User</th>
-      <th>Active App</th>
-    </tr>
-  </thead>
-  <tbody id="overview-online-body">
-    <tr><td colspan="6">Loading online devices...</td></tr>
-  </tbody>
+    <thead>
+        <tr>
+            <th>Nickname</th>
+            <th>Tag</th>
+            <th>CPU %</th>
+            <th>RAM %</th>
+            <th>User</th>
+            <th>Active App</th>
+        </tr>
+    </thead>
+    <tbody id="overview-online-body">
+        <tr>
+            <td colspan="6">Loading online devices...</td>
+        </tr>
+    </tbody>
 </table>
 
 <h3 style="margin-top: 2em;">⚫ Offline Devices (no ping in last {{ OFFLINE_DEVICE_TIMEOUT }} s)</h3>
 <ul id="overview-offline-list">
-  <li>Loading offline list...</li>
+    <li>Loading offline list...</li>
 </ul>
 
 <script>
     window.FLASK_ROUTES = {
         api_overview_data: "{{ url_for('app_routes.api_overview_data') }}",
     };
-    window.REFRESH_TIMEOUT = {{REFRESH_TIMEOUT_MS}}
+    window.REFRESH_TIMEOUT = {{ REFRESH_TIMEOUT_MS }}
 
-  document.addEventListener("DOMContentLoaded", function () {
-      const script = document.createElement('script');
-      script.src = "{{ url_for('static', filename='js/overview.js') }}";
-      document.head.appendChild(script);
-  });
+    document.addEventListener("DOMContentLoaded", function() {
+        const script = document.createElement('script');
+        script.src = "{{ url_for('static', filename='js/overview.js') }}";
+        document.head.appendChild(script);
+    });
 </script>
-
-
 
 {% endblock %}

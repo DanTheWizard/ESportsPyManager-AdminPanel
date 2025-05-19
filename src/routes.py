@@ -135,15 +135,16 @@ def api_overview_data():
 
 
 def build_device_data():
-    from src.mqtt_client import device_status, last_active
     now = datetime.now()
+    registered_rows = get_registered_devices()
     devices = []
-    for machine_id, nickname, *_ in get_registered_devices():
+    for machine_id, nickname, *_, tag in registered_rows:
         last = last_active.get(machine_id)
         online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
         stats = device_status.get(machine_id, {})
         devices.append({
             "nickname": nickname,
+            "tag": tag,
             "cpu": stats.get("cpu", "—"),
             "ram": stats.get("ram", "—"),
             "user": stats.get("user", "—"),

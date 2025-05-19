@@ -18,6 +18,7 @@ function refreshOverview() {
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                     <td>${d.nickname}</td>
+                    <td>${d.tag}</td>
                     <td>${d.cpu}</td>
                     <td>${d.ram}</td>
                     <td>${d.user}</td>
