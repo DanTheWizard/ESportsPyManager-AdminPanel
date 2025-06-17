@@ -3,111 +3,135 @@
 {% block content %}
 
 
-<h2>📋 Unregistered Devices (Online Only)</h2>
-<table border="1">
-    <tr>
-        <th>Machine ID</th>
-        <th>Hostname</th>
-        <th>Tag</th>
-        <th>Nickname</th>
-    </tr>
-    {% for device in unregistered %}
-    <form method="POST" action="{{ url_for('api_routes.register_from_manage') }}">
+    <h2>📋 Unregistered Devices (Online Only)</h2>
+    <table class="unregistered_online" > {# border="1" #}
         <tr>
+            <th class="PC-ID"   >Machine ID</th>
+            <th class="hostname">Hostname</th>
+            <th class="tag"     >Tag</th>
+            <th class="nickname">Nickname</th>
+        </tr>
+        {% for device in unregistered %}
+        <form method="POST" action="{{ url_for('api_routes.register_from_manage') }}">
+            <tr>
+                <td>
+                    <button
+                        type="button"
+                        class="identify-btn"
+                        data-machine-id="{{ device.machine_id }}"
+                        title="Make this PC identify itself"
+                    >
+                        Identify
+                    </button>
+                    {{ device.machine_id }}
+                </td>
+                <td>{{ device.hostname }}</td>
+                <td>
+                    <label>
+                        <select name="tag">
+                            {% for tag in DEVICE_TAGS %}
+                                <option value="{{ tag }}">{{ tag }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </td>
+                <td>
+                    <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
+                    <label>
+                        <input type="text" name="nickname" placeholder="Enter nickname" required>
+                    </label>
+                    <button type="submit">Register</button>
+                </td>
+            </tr>
+        </form>
+        {% endfor %}
+    </table>
+    
+    <hr>
+    
+    <h2>🔐 Registered Devices</h2>
+    <table border="1">
+        <tr>
+            <th>Nickname</th>
+            <th>Machine ID</th>
+            <th>Registered At</th>
+            <th>Tag</th>
+            <th>Action</th>
+        </tr>
+        {% for device in registered %}
+        <tr>
+            <td>{{ device.nickname }}</td>
+            <td>{{ device.machine_id }}</td>
+            <td>{{ device.registered_at }}</td>
+            <td>{{ device.tag }}</td>
             <td>
-                <button
-                    type="button"
-                    class="identify-btn"
-                    data-machine-id="{{ device.machine_id }}"
-                    title="Make this PC identify itself"
-                >
-                    Identify
-                </button>
-                {{ device.machine_id }}
-            </td>
-            <td>{{ device.hostname }}</td>
-            <td>
-                <label>
-                    <select name="tag">
-                        {% for tag in DEVICE_TAGS %}
-                            <option value="{{ tag }}">{{ tag }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-            </td>
-            <td>
-                <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
-                <label>
-                    <input type="text" name="nickname" placeholder="Enter nickname" required>
-                </label>
-                <button type="submit">Register</button>
+                <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
+                    <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
+                    <button type="submit">Delete</button>
+                </form>
             </td>
         </tr>
-    </form>
-    {% endfor %}
-</table>
-
-<hr>
-
-<h2>🔐 Registered Devices</h2>
-<table border="1">
-    <tr>
-        <th>Nickname</th>
-        <th>Machine ID</th>
-        <th>Registered At</th>
-        <th>Tag</th>
-        <th>Action</th>
-    </tr>
-    {% for device in registered %}
-    <tr>
-        <td>{{ device.nickname }}</td>
-        <td>{{ device.machine_id }}</td>
-        <td>{{ device.registered_at }}</td>
-        <td>{{ device.tag }}</td>
-        <td>
-            <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
-                <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
-                <button type="submit">Delete</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        {% endfor %}
+    </table>
 
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".identify-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      const machineId = button.dataset.machineId;
-
-      const form = new URLSearchParams();
-      form.append("machine_id", machineId);
-      form.append("action", "ID");
-      form.append("argument", "");
-
-      fetch("{{ url_for('api_routes.send_action_device') }}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: form.toString()
-      })
-      .then(r => r.json())
-      .then(json => {
-        if (json.status === "success") {
-          alert(`✅ Identify signal sent to ${machineId}`);
-        } else {
-          alert(`⚠️ Error: ${json.message || 'Unknown error'}`);
-        }
-      })
-      .catch(err => {
-        alert(`❌ Request failed: ${err}`);
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".identify-btn").forEach(button => {
+        button.addEventListener("click", () => {
+          const machineId = button.dataset.machineId;
+    
+          const form = new URLSearchParams();
+          form.append("machine_id", machineId);
+          form.append("action", "ID");
+          form.append("argument", "");
+    
+          fetch("{{ url_for('api_routes.send_action_device') }}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: form.toString()
+          })
+          .then(r => r.json())
+          .then(json => {
+            if (json.status === "success") {
+              alert(`✅ Identify signal sent to ${machineId}`);
+            } else {
+              alert(`⚠️ Error: ${json.message || 'Unknown error'}`);
+            }
+          })
+          .catch(err => {
+            alert(`❌ Request failed: ${err}`);
+          });
+        });
       });
     });
-  });
-});
-</script>
+    </script>
+    
+    <style>
+        .unregistered_online {
+          width: 100%; /* Make the table fill the container */
+          border-collapse: collapse; /* Remove default cell spacing */
+        }
 
+        .unregistered_online th, .unregistered_online td {
+          border: 1px solid black; /* Add a border for visibility */
+        }
+
+        .unregistered_online .tag,
+        .unregistered_online .PC-ID {
+          width: 10%;
+        }
+
+        .unregistered_online .hostname {
+          width: 15%;
+        }
+
+        .unregistered_online .nickname {
+            width: 30%;
+        }
+
+    </style>
 
 {% endblock %}

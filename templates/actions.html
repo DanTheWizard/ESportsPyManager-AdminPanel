@@ -11,37 +11,55 @@
 <h2>Device Actions</h2>
 
 <form method="POST" action="{{ url_for('api_routes.send_action') }}">
-    <div id="sel_bulk_line" class="sel_bulk_line">
-        <label>
-            <input type="checkbox" id="select_all"> All PCs
-        </label>
-
-        <h3>🔁 Bulk Action</h3> {# Originally with style="margin-top: 2em;" #}
-        <label>Action:
-            <select name="bulk_action" id="bulk_action">
-                <option value="none">none</option>
-                <option value="test">test</option>
-                <option value="shutdown">shutdown</option>
-                <option value="say">say</option>
-                <option value="MCEdu">MCEdu</option>
-            </select>
-        </label>
-        <label for="bulk_argument"></label><input type="text" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" style="display:none;">
-        <br><br>
-        <input type="text" id="bulk_argument" class="arg-box" style="display:none;">
-        <button id="bulk_execute" type="button">Execute Bulk Action</button>
-    </div>
-    <!-- ------------------------------------------------------------------------------------- -->
-
-    <table border="1"> {# Originally: style="width:100%; margin-top: 1em;" #}
+    <table class="bulk_action_table">
         <thead>
             <tr>
-                <th>Select</th>
-                <th>Nickname</th>
-                <th>Tag</th>
-                <th>Machine ID</th>
-                <th>Action</th>
-                <th>Argument</th>
+                <th class="togl_all">Select All PC's</th>
+                <th class="action"  >Action</th>
+                <th class="args"    >Argument</th>
+                <th class="execute" >Execute</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <label for="select_all"></label>
+                    <input type="checkbox" id="select_all"> All PCs
+                </td>
+                <td>
+                    <label>Action:
+                        <select name="bulk_action" id="bulk_action">
+                            <option value="none">none</option>
+                            <option value="test">test</option>
+                            <option value="shutdown">shutdown</option>
+                            <option value="say">say</option>
+                            <option value="MCEdu">MCEdu</option>
+                        </select>
+                    </label>
+                </td>
+                <td>
+                    <label for="bulk_argument"></label>
+                    <input type="text" class="arg-box" name="bulk_argument" id="bulk_argument" placeholder="Optional Argument" disabled>
+                </td>
+                <td><button id="bulk_execute" type="button">Execute Bulk Action</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <!-- ------------------------------------------------------------------------------------- -->
+    <br>
+
+    <table class="actions_online" border="1"> {# Originally: style="width:100%; margin-top: 1em;" #}
+        <thead>
+            <tr>
+                <th class="select"  >Select</th>
+                <th class="nickname">Nickname</th>
+                <th class="tag"     >Tag</th>
+                <th class="PC-ID"   >Machine ID</th>
+                <th class="action"  >Action</th>
+                <th class="args"    >Argument</th>
+                <th class="execute" >Execute</th>
             </tr>
         </thead>
     <tbody id="device-table-body">
@@ -76,14 +94,121 @@
 
 
 
-<style>
-    #sel_bulk_line {
-        display: flex;
-        align-items: center;
-        gap: 1em;
-    }
-</style>
+    <style>
+        .actions_online .arg-box,
+        .bulk_action_table .arg-box {
+            width: 90%;
+        }
+    </style>
 
+    <style>
+        table.actions_online {
+          border: 1px solid #1C6EA4;
+          background-color: #EEEEEE;
+          width: 100%;
+          border-collapse: collapse;
+        }
+        table.actions_online td, table.actions_online th {
+          border: 1px solid #AAAAAA;
+          padding: 3px 2px;
+        }
+        table.actions_online tbody td {
+          font-size: 13px;
+        }
+        table.actions_online tr:nth-child(even) {
+          background: #D0E4F5;
+        }
+        table.actions_online thead {
+          background: #1C6EA4;
+          background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          border-bottom: 2px solid #444444;
+        }
+        table.actions_online thead th {
+          font-size: 15px;
+          font-weight: bold;
+          color: #FFFFFF;
+          border-left: 2px solid #D0E4F5;
+        }
+        table.actions_online thead th:first-child {
+          border-left: none;
+        }
+
+    </style>
+
+    <style>
+        table.bulk_action_table {
+          border: 1px solid #1C6EA4;
+          background-color: #EEEEEE;
+          width: 50%;
+          border-collapse: collapse;
+        }
+        table.bulk_action_table td, table.bulk_action_table th {
+          border: 1px solid #AAAAAA;
+          padding: 3px 2px;
+        }
+        table.bulk_action_table tbody td {
+          font-size: 13px;
+        }
+        table.bulk_action_table tr:nth-child(even) {
+          background: #D0E4F5;
+        }
+        table.bulk_action_table thead {
+          background: #1C6EA4;
+          background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+          border-bottom: 2px solid #444444;
+        }
+        table.bulk_action_table thead th {
+          font-size: 15px;
+          font-weight: bold;
+          color: #FFFFFF;
+          border-left: 2px solid #D0E4F5;
+        }
+        table.bulk_action_table thead th:first-child {
+          border-left: none;
+        }
+
+    </style>
+
+
+    <style>
+        table.actions_online,
+        table.bulk_action_table {
+            text-align: center;
+        }
+
+        .actions_online {
+          width: 100%; /* Make the table fill the container */
+          border-collapse: collapse; /* Remove default cell spacing */
+        }
+
+        .actions_online th, .actions_online td {
+          border: 1px solid black; /* Add a border for visibility */
+        }
+
+        .actions_online .tag,
+        .actions_online .PC-ID {
+          width: 10%;
+        }
+
+        .actions_online .action,
+        .actions_online .args {
+          width: 15%;
+        }
+
+        .actions_online .nickname {
+            width: 30%;
+        }
+
+        .actions_online .select {
+            max-width: 50px;
+            min-width: 25px;
+        }
+
+    </style>
 
 
 

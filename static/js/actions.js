@@ -5,9 +5,13 @@ function shouldShowArgBox(action) {
 
 function toggleArgBox(argBox, action) {
   const visible = shouldShowArgBox(action);
-  argBox.style.display = visible ? "inline-block" : "none";
-  argBox.value = visible ? argBox.value : "";
-  visible ? argBox.setAttribute("name", "argument") : argBox.removeAttribute("name");
+  argBox.disabled = !visible;
+  if (visible) {
+    argBox.setAttribute("name", "argument");
+  } else {
+    argBox.value = "";
+    argBox.removeAttribute("name");
+  }
 }
 
 function getRowElements(dropdown) {
@@ -123,7 +127,7 @@ function updateDeviceTable() {
                 <option value="ID">ID</option>
               </select>
             </td>
-            <td><input type="text" class="arg-box" style="display:none;"></td>
+            <td><input type="text" class="arg-box" autocomplete="off" disabled placeholder="Optional Argument"></td>
             <td>
               <button type="button" class="execute-btn" data-machine-id="${d.machine_id}" data-nickname="${d.nickname}">Execute</button>
             </td>
