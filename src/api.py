@@ -172,3 +172,41 @@ def api_device_statuses():
 
 
 
+@api_routes.route('/unregistered_devices')
+@login_required
+def api_unregistered_devices():
+    now = datetime.now()
+    registered_ids = {device[0] for device in get_registered_devices()}
+    online_ids = {
+        machine_id
+        for machine_id in connected_devices
+        if (
+            last_active.get(machine_id) and
+            (now - last_active[machine_id]).total_seconds() <= OFFLINE_DEVICE_TIMEOUT
+        )
+    }
+
+    unsorted = [
+        {
+            "machine_id": machine_id,
+            "hostname": hostnames.get(machine_id, "Unknown")
+        }
+        for machine_id in (online_ids - registered_ids)
+    ]
+    unregistered = sorted(unsorted, key=lambda x: x["hostname"].lower())
+    return jsonify(unregistered=unregistered, tags=DEVICE_TAGS)
+
+
+@api_routes.route('/registered_devices')
+@login_required
+def api_registered_devices():
+    devices = []
+    for machine_id, nickname, registered_at, _, tag in get_registered_devices():
+        dt = datetime.fromisoformat(registered_at)
+        devices.append({
+            "machine_id": machine_id,
+            "nickname": nickname,
+            "registered_at": dt.strftime("%m/%d/%y %I:%M%p").lstrip("0").replace("/0", "/"),
+            "tag": tag
+        })
+    return jsonify(registered=devices)
