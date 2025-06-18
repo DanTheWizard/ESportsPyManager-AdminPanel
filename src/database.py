@@ -1,4 +1,3 @@
-# database.py
 import sqlite3
 from datetime import datetime
 
@@ -22,13 +21,13 @@ def init_db():
 def register_device(machine_id, nickname, tag):
     now = datetime.now().isoformat()
     with sqlite3.connect(DB_PATH) as conn:
-        print(tag)
         cursor = conn.cursor()
         cursor.execute('''
             INSERT OR IGNORE INTO devices (machine_id, nickname, registered_at, last_seen, tag)
             VALUES (?, ?, ?, ?, ?)
         ''', (machine_id, nickname, now, now, tag))
         conn.commit()
+
 
 
 def update_last_seen(machine_id):
