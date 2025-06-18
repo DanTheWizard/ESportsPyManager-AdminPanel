@@ -52,7 +52,7 @@ def on_message(wsclient, userdata, msg):
 
     elif topic.startswith("LastActive/") and topic.endswith("/time"):
         _, machine_id, _ = topic.split('/')
-        last_active[machine_id] = datetime.now()
+        last_active[machine_id] = datetime.fromisoformat(payload)
         #print(f"[MQTT] {machine_id} last seen at {last_active[machine_id]}")
 
 
