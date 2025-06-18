@@ -93,9 +93,50 @@ document.getElementById("bulk_execute").addEventListener("click", function () {
 
 
 // Update Device Table
+function createDeviceRow(device) {
+  const tr = document.createElement('tr');
+  tr.setAttribute('data-machine-id', device.machine_id);
+  tr.innerHTML = `
+    <td><input type="checkbox" name="selected_devices" value="${device.machine_id}" class="device-checkbox"></td>
+    <td>${device.nickname}</td>
+    <td>${device.tag}</td>
+    <td>${device.machine_id}</td>
+    <td>
+      <select class="action-dropdown">
+        <option value="none">none</option>
+        <option value="test">test</option>
+        <option value="shutdown">shutdown</option>
+        <option value="say">say</option>
+        <option value="MCEdu">MCEdu</option>
+        <option value="ID">ID</option>
+      </select>
+    </td>
+    <td><input type="text" class="arg-box" autocomplete="off" disabled placeholder="Optional Argument"></td>
+    <td>
+      <button type="button" class="execute-btn" data-machine-id="${device.machine_id}" data-nickname="${device.nickname}">Execute</button>
+    </td>
+  `;
+  return tr;
+}
+
+function handleEmptyDeviceTable(tbody) {
+  const existing = tbody.querySelectorAll('tr[data-machine-id]');
+  const placeholder = tbody.querySelector('tr[data-empty-placeholder]');
+
+  if (existing.length === 0 && !placeholder) {
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-empty-placeholder", "true");
+    tr.innerHTML = "<td colspan='7' style='text-align: center;'>No online registered devices found.</td>";
+    tbody.appendChild(tr);
+  } else if (existing.length > 0 && placeholder) {
+    placeholder.remove();
+  }
+}
+
+
 function updateDeviceTable() {
   fetch(window.FLASK_ROUTES.api_device_statuses)
-    .then(r => r.json())
+    .then(res => res.json())
     .then(data => {
       const tbody = document.getElementById('device-table-body');
       const currentRows = new Map();
@@ -107,42 +148,23 @@ function updateDeviceTable() {
       const nowOnline = data.statuses.filter(d => d.online);
       const nowOffline = data.statuses.filter(d => !d.online);
 
-      nowOnline.forEach(d => {
-        seenOnline.add(d.machine_id);
-        if (!currentRows.has(d.machine_id)) {
-          const tr = document.createElement('tr');
-          tr.setAttribute('data-machine-id', d.machine_id);
-          tr.innerHTML = `
-            <td><input type="checkbox" name="selected_devices" value="${d.machine_id}" class="device-checkbox"></td>
-            <td>${d.nickname}</td>
-            <td>${d.tag}</td>
-            <td>${d.machine_id}</td>
-            <td>
-              <select class="action-dropdown">
-                <option value="none">none</option>
-                <option value="test">test</option>
-                <option value="shutdown">shutdown</option>
-                <option value="say">say</option>
-                <option value="MCEdu">MCEdu</option>
-                <option value="ID">ID</option>
-              </select>
-            </td>
-            <td><input type="text" class="arg-box" autocomplete="off" disabled placeholder="Optional Argument"></td>
-            <td>
-              <button type="button" class="execute-btn" data-machine-id="${d.machine_id}" data-nickname="${d.nickname}">Execute</button>
-            </td>
-          `;
+      nowOnline.forEach(device => {
+        seenOnline.add(device.machine_id);
+        if (!currentRows.has(device.machine_id)) {
+          const tr = createDeviceRow(device);
           tbody.appendChild(tr);
         }
       });
 
+      // Remove rows that are no longer online
       currentRows.forEach((row, id) => {
         if (!seenOnline.has(id)) row.remove();
       });
 
-      rebindDropdowns();
-      rebindPerDeviceExecute();
+      // Show "no online devices" message if applicable
+      handleEmptyDeviceTable(tbody);
 
+      // Offline list rendering
       const ul = document.getElementById('offline-list');
       ul.innerHTML = '';
       if (nowOffline.length === 0) {
@@ -150,13 +172,24 @@ function updateDeviceTable() {
       } else {
         nowOffline.forEach(d => {
           const li = document.createElement('li');
-          const last = d.last_active ? new Date(d.last_active).toLocaleTimeString() : 'unknown';
-          li.textContent = `${d.nickname} – last seen at ${last}`;
+          const lastSeen = d.last_active ? new Date(d.last_active).toLocaleString() : 'unknown';
+          li.textContent = `${d.nickname} – last seen at ${lastSeen}`;
           ul.appendChild(li);
         });
       }
+
+      rebindDropdowns();
+      rebindPerDeviceExecute();
+    })
+    .catch(err => {
+      alert(`❌ Failed to fetch device statuses: ${err}`);
     });
 }
+
+
+
+
+
 
 // Rebinding logic
 function rebindDropdowns() {
