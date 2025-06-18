@@ -35,7 +35,7 @@ function refreshOverview() {
             } else {
                 offline.forEach(d => {
                      const lastSeen = d.last_active
-                        ? new Date(d.last_active).toLocaleTimeString()
+                        ? new Date(d.last_active).toLocaleString()
                         : 'unknown';
                     const li = document.createElement("li");
                     li.textContent = `${d.nickname} – last seen at ${lastSeen}`;
