@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
 from flask_login import login_user, logout_user, login_required, current_user
-from database import register_device, get_registered_devices, remove_device
+from database import get_registered_devices
 from users import validate_login
 from src.mqtt_client import connected_devices, hostnames, last_active, device_status
-from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
 
@@ -24,7 +23,7 @@ def login():
             login_user(user)
             return redirect(url_for('app_routes.dashboard'))
         else:
-            flash('Invalid credentials', 'error')
+            flash('Invalid credentials')
     return render_template('login.html')
 
 @app_routes.route('/logout')

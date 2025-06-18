@@ -1,8 +1,7 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, redirect, url_for, request, jsonify, current_app
+from flask_login import login_required
 from database import register_device, get_registered_devices, remove_device
-from users import validate_login
-from src.mqtt_client import connected_devices, hostnames, last_active, device_status
+from src.mqtt_client import connected_devices, hostnames, last_active
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
@@ -86,13 +85,12 @@ def register_from_manage():
     machine_id = request.form.get("machine_id")
     nickname   = request.form.get("nickname")
     tag        = request.form.get("tag")
-    print("From:", tag)
 
     if machine_id and nickname:
         register_device(machine_id, nickname, tag)
-        flash(f"Device {machine_id} registered as '{nickname}'", "success")
+        current_app.logger.info(f"Device {machine_id} registered as '{nickname}'")
     else:
-        flash("Missing fields", "error")
+        current_app.logger.error("Missing fields")
 
     return redirect(url_for('app_routes.manage_devices'))
 
@@ -102,7 +100,7 @@ def deregister_device():
     machine_id = request.form.get("machine_id")
     if machine_id:
         remove_device(machine_id)
-        flash(f"Device {machine_id} has been removed", "info")
+        current_app.logger.info(f"Device {machine_id} has been removed")
     return redirect(url_for('app_routes.manage_devices'))
 
 
@@ -117,7 +115,7 @@ def send_action():
     argument = request.form.get("bulk_argument", "").strip()
 
     if not machine_ids:
-        flash("No devices selected for bulk action.", "warning")
+        current_app.logger.warning("No devices selected for bulk action.")
         return redirect(url_for('app_routes.actions_page'))
 
     final_action = action
@@ -127,7 +125,7 @@ def send_action():
     for machine_id in machine_ids:
         mqtt_client.publish(f"PC/{machine_id}/action", final_action)
 
-    flash(f"Sent '{final_action}' to {len(machine_ids)} device(s).", "success")
+    current_app.logger.info(f"Sent '{final_action}' to {len(machine_ids)} device(s).")
     return redirect(url_for('app_routes.actions_page'))
 
 
