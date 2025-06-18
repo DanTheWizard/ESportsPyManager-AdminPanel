@@ -198,7 +198,7 @@ function refreshRegisteredDevices() {
           <td>
             <form method="POST" action="/api/deregister">
               <input type="hidden" name="machine_id" value="${device.machine_id}">
-              <button type="submit">Delete</button>
+              <button type="submit">Remove (Unregister)</button>
             </form>
           </td>
         `;
