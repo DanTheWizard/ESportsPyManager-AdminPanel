@@ -97,7 +97,14 @@ def manage_devices():
             "tag": tag,
         })
 
-    return render_template("manage_devices.html", unregistered=unregistered, registered=registered, DEVICE_TAGS=DEVICE_TAGS)
+    return render_template(
+        "manage_devices.html",
+        unregistered=unregistered,
+        registered=registered,
+        DEVICE_TAGS=DEVICE_TAGS,
+        OFFLINE_DEVICE_TIMEOUT=OFFLINE_DEVICE_TIMEOUT,
+        REFRESH_TIMEOUT_MS=(OVERVIEW_REFRESH_TIMEOUT*1000)
+    )
 
 ########################################################################################################################
 
