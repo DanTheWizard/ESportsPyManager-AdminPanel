@@ -1,10 +1,10 @@
 import paho.mqtt.client as mqtt
 from config import *
-from datetime import datetime
 from threading import Thread
 import time
 from collections import deque
 from datetime import datetime, timedelta
+import json
 
 
 connected_devices = set()   # Will contain active machine_ids
@@ -19,13 +19,18 @@ history_samples = deque()   # (timestamp, avg_cpu, avg_ram)
 
 MQTT_TOPIC = "PC/#"
 LASTACTIVE_TOPIC = "LastActive/#"
+ESPORTS_STATUS_TOPIC = "ESports/status"
 
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, transport="websockets")
 
+
+
+# Connect to MQTT
 def on_connect(wsclient, userdata, flags, reason_code, properties):
     print("[MQTT] Connected")
     wsclient.subscribe(MQTT_TOPIC)
     wsclient.subscribe(LASTACTIVE_TOPIC)
+    wsclient.subscribe(ESPORTS_STATUS_TOPIC)
 
 
 
@@ -54,6 +59,12 @@ def on_message(wsclient, userdata, msg):
         _, machine_id, _ = topic.split('/')
         last_active[machine_id] = datetime.fromisoformat(payload)
         #print(f"[MQTT] {machine_id} last seen at {last_active[machine_id]}")
+
+    elif topic == ESPORTS_STATUS_TOPIC:
+        try:
+            get_esports_status.last_status = json.loads(payload)
+        except Exception:
+            get_esports_status.last_status = None
 
 
 def run_mqtt_and_stats():
@@ -106,3 +117,20 @@ def update_average_history():
 
     # print(f"[DEBUG] Appended history sample: CPU={avg_cpu:.2f}%, RAM={avg_ram:.2f}% at {timestamp.strftime('%H:%M:%S')}")
 
+
+########################################################################################################################
+
+def publish_esports_status(status_dict):
+    payload = json.dumps(status_dict)
+    # Publish with retain=True
+    client.publish(ESPORTS_STATUS_TOPIC, payload, retain=True)
+
+def get_esports_status():
+    # This function should return the last retained message for the topic.
+    # Since paho-mqtt does not provide a direct sync retained message fetch,
+    # you need to subscribe and handle the message in a callback.
+    # For a simple approach, cache the last received retained message:
+    if not hasattr(get_esports_status, "last_status"):
+        get_esports_status.last_status = None
+
+    return get_esports_status.last_status

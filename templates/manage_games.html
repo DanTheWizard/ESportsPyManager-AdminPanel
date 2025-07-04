@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Manage Games Status - Admin Panel{% endblock %}
+{% block content %}
+
+
+    <h1>Manage Games Status</h1>
+    <form id="games-status-form">
+        <label>
+            <input type="checkbox" id="enable"> Enable
+        </label><br>
+        <label>
+            <input type="checkbox" id="Epic"> Epic
+        </label><br>
+        <label>
+            <input type="checkbox" id="Steam"> Steam
+        </label><br>
+        <label>
+            <input type="checkbox" id="Battle"> Battle
+        </label><br>
+        <label>
+            <input type="checkbox" id="Riot"> Riot
+        </label><br><br>
+        <button type="button" id="update-status-btn">Update Status</button>
+    </form>
+    <div id="status-message"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const script = document.createElement('script');
+            script.src = "{{ url_for('static', filename='js/manage_games.js') }}";
+            document.head.appendChild(script);
+        });
+    </script>
+
+
+
+{% endblock %}

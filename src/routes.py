@@ -159,3 +159,9 @@ def build_device_data():
             "online": online
         })
     return devices
+########################################################################################################################
+
+@app_routes.route('/manage-games')
+@login_required
+def manage_games():
+    return render_template('manage_games.html')

@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, request, jsonify, current_app
 from flask_login import login_required
 from database import register_device, get_registered_devices, remove_device
-from src.mqtt_client import connected_devices, hostnames, last_active
+from src.mqtt_client import connected_devices, hostnames, last_active, get_esports_status, publish_esports_status
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
@@ -208,3 +208,33 @@ def api_registered_devices():
             "tag": tag
         })
     return jsonify(registered=devices)
+
+
+
+# Send the game status kill API
+
+
+# In-memory fallback for demo; replace with persistent storage or MQTT retained message in production
+GAMES_STATUS_DEFAULT = {
+    "enable": False,
+    "Epic": False,
+    "Steam": False,
+    "Battle": False,
+    "Riot": False
+}
+# games_status_cache = GAMES_STATUS_DEFAULT.copy()
+
+@api_routes.route('/games_status', methods=['GET'])
+@login_required
+def get_games_status():
+    status = get_esports_status()
+    if status is None:
+        status = GAMES_STATUS_DEFAULT
+    return jsonify(status)
+
+@api_routes.route('/games_status', methods=['POST'])
+@login_required
+def update_games_status():
+    data = request.get_json()
+    publish_esports_status(data)
+    return jsonify({"success": True})
