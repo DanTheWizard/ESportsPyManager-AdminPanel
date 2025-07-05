@@ -1,28 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Manage Games Status - Admin Panel{% endblock %}
+
 {% block content %}
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_games.css') }}">
 
-    <h1>Manage Games Status</h1>
-    <form id="games-status-form">
-        <label>
-            <input type="checkbox" id="enable"> Enable
-        </label><br>
-        <label>
-            <input type="checkbox" id="Epic"> Epic
-        </label><br>
-        <label>
-            <input type="checkbox" id="Steam"> Steam
-        </label><br>
-        <label>
-            <input type="checkbox" id="Battle"> Battle
-        </label><br>
-        <label>
-            <input type="checkbox" id="Riot"> Riot
-        </label><br><br>
-        <button type="button" id="update-status-btn">Update Status</button>
-    </form>
-    <div id="status-message"></div>
+    <main class="games-panel">
+        <h1 class="status_title">Manage Games Status</h1>
+        <form id="games-status-form">
+            {% for game in ['enable', 'Epic', 'Steam', 'Battle', 'Riot'] %}
+            <div class="switch-row label-{{ game }}">
+                <span class="text-label-{{  game }}">{{ game }}</span>
+                <label class="switch">
+                    <input type="checkbox" id="{{ game }}">
+                    <div class="slider">
+                        <div class="circle">
+                            <!-- Cross Icon -->
+                            <svg class="cross" viewBox="0 0 365.696 365.696" width="6" height="6" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor" d="M243.188 182.86L356.32 69.726c12.5-12.5..."/>
+                            </svg>
+                            <!-- Checkmark Icon -->
+                            <svg class="checkmark" viewBox="0 0 24 24" width="10" height="10" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor" d="M9.707 19.121a.997.997 0 0 1-1.414 0..."/>
+                            </svg>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            {% endfor %}
+            <br>
+            <button type="button" id="update-status-btn">Update Status</button>
+        </form>
+        <div id="status-message" class="hidden">Place-Holder Text</div>
+    </main>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -31,7 +41,5 @@
             document.head.appendChild(script);
         });
     </script>
-
-
 
 {% endblock %}

@@ -34,12 +34,30 @@ document.getElementById('update-status-btn').addEventListener('click', function 
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            statusMessage.textContent = 'Status updated successfully!';
+            showStatusMessage('Status updated successfully!');
         } else {
-            statusMessage.textContent = 'Failed to update status.';
+            showStatusMessage('Failed to update status.', true);
         }
     })
     .catch(() => {
-        statusMessage.textContent = 'Error updating status.';
+        showStatusMessage('Error updating status.', true);
     });
+});
+
+
+
+function showStatusMessage(message, isError = false) {
+    statusMessage.textContent = message;
+    statusMessage.classList.remove('hidden', 'error', 'success');
+    statusMessage.classList.add(isError ? 'error' : 'success');
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        statusMessage.classList.add('hidden');
+    }, 3000);
+}
+
+const newText = "Enable Kill Tool"; // Replace with desired text
+document.querySelectorAll('.text-label-enable').forEach(element => {
+    element.textContent = newText;
 });
