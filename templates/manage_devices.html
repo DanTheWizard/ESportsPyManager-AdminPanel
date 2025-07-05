@@ -42,7 +42,7 @@
                 <td>
                     <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
                         <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
-                        <button type="submit">Delete</button>
+                        <button type="submit">Remove (Unregister)</button>
                     </form>
                 </td>
             </tr>
