@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, request, jsonify, current_app
 from flask_login import login_required
 from database import register_device, get_registered_devices, remove_device
-from src.mqtt_client import connected_devices, hostnames, last_active, get_esports_status, publish_esports_status
+from src.mqtt_client import connected_devices, hostnames, last_active, get_esports_status, publish_esports_status, history_samples
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
@@ -74,7 +74,6 @@ def api_device_usage_data():
 @api_routes.route("/avg_usage_history")
 @login_required
 def api_avg_usage_history():
-    from src.mqtt_client import history_samples
     return jsonify([
         {
             "time": ts.strftime("%H:%M:%S"),
