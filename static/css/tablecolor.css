@@ -1,0 +1,46 @@
+table {
+  border: 1px solid #555; /* darker border for dark mode */
+  background-color: #333; /* base dark grey background */
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+  color: #f0f0f0; /* light text for readability */
+}
+
+table td, table th {
+  border: 1px solid #555;
+  padding: 3px 2px;
+}
+
+table tbody td {
+  font-size: 13px;
+}
+
+/* Alternating row colors - even rows slightly lighter */
+table tr:nth-child(even) {
+  background: #444;
+}
+
+table tr:nth-child(odd) {
+  background: #3a3a3a;
+}
+
+
+table thead {
+  background: #1c3a5c;
+  background: -moz-linear-gradient(top, #2e4a6b 0%, #22415f 66%, #1c3a5c 100%);
+  background: -webkit-linear-gradient(top, #2e4a6b 0%, #22415f 66%, #1c3a5c 100%);
+  background: linear-gradient(to bottom, #2e4a6b 0%, #22415f 66%, #1c3a5c 100%);
+  border-bottom: 2px solid #666;
+}
+
+table thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffffff;
+  border-left: 2px solid #555;
+}
+
+table thead th:first-child {
+  border-left: none;
+}

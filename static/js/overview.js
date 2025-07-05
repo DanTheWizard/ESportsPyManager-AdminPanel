@@ -12,7 +12,7 @@ function refreshOverview() {
             // Update online table
             onlineBody.innerHTML = "";
             if (online.length === 0) {
-                onlineBody.innerHTML = "<tr><td colspan='6'>No online registered devices found.</td></tr>";
+                onlineBody.innerHTML = "<tr><td colspan='6' style='text-align: center'>No online registered devices found.</td></tr>";
             } else {
                 online.forEach(d => {
                     const tr = document.createElement("tr");

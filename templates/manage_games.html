@@ -8,7 +8,7 @@
     <main class="games-panel">
         <h1 class="status_title">Manage Games Status</h1>
         <form id="games-status-form">
-            {% for game in ['enable', 'Epic', 'Steam', 'Battle', 'Riot'] %}
+            {% for game in gameList %}
             <div class="switch-row label-{{ game }}">
                 <span class="text-label-{{  game }}">{{ game }}</span>
                 <label class="switch">

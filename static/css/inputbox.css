@@ -1,0 +1,33 @@
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  background-color: #333;       /* Base dark background */
+  color: #f0f0f0;               /* Light text for contrast */
+  border: 1px solid #555;       /* Consistent border color */
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover {
+  border-color: #777;           /* Slightly brighter border on hover */
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: #88aaff;        /* Blue-ish focus border */
+  background-color: #3a3a3a;    /* Slight background shift on focus */
+}
+
+
+input[type="text"]:disabled,
+input[type="email"]:disabled,
+input[type="password"]:disabled {
+    border-color: #470000a3;
+    background-color: #47000059;
+}

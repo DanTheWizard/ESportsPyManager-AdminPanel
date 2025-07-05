@@ -1,0 +1,38 @@
+.actions_online .arg-box,
+.bulk_action_table .arg-box {
+    width: 90%;
+}
+
+
+table.actions_online,
+table.bulk_action_table {
+    text-align: center;
+}
+
+.actions_online {
+  width: 100%; /* Make the table fill the container */
+  border-collapse: collapse; /* Remove default cell spacing */
+}
+
+.actions_online th, .actions_online td {
+  border: 1px solid black; /* Add a border for visibility */
+}
+
+.actions_online .tag,
+.actions_online .PC-ID {
+  width: 10%;
+}
+
+.actions_online .action,
+.actions_online .args {
+  width: 15%;
+}
+
+.actions_online .nickname {
+    width: 30%;
+}
+
+.actions_online .select {
+    max-width: 50px;
+    min-width: 25px;
+}

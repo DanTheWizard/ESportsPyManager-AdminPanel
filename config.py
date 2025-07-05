@@ -8,6 +8,7 @@ load_dotenv()                                                # Load the variable
 
 # config.py
 DEVICE_TAGS = ["Stream-OS", "DoeD", "Admin", "Test Bench"]
+GAME_LIST = ['enable', 'Epic', 'Steam', 'Battle', 'Riot']
 
 
 ADMIN_USERNAME   = os.getenv("ADMIN_USERNAME")                              ;"The Admin Username for login"

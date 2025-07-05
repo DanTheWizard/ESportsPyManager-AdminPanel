@@ -1,0 +1,26 @@
+.overview_online {
+  width: 100%; /* Make the table fill the container */
+  border-collapse: collapse; /* Remove default cell spacing */
+}
+
+.overview_online th, .overview_online td {
+  border: 1px solid black; /* Add a border for visibility */
+}
+
+.overview_online .nickname,
+.overview_online .tag      {
+  width: 10%;
+}
+
+.overview_online .CPU_perc,
+.overview_online .RAM_perc {
+  width: 5%;
+}
+
+.overview_online .username {
+  width: 15%;
+}
+
+.overview_online .ACTV_app {
+  width: 55%;
+}

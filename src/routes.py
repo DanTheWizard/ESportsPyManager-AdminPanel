@@ -164,4 +164,7 @@ def build_device_data():
 @app_routes.route('/manage-games')
 @login_required
 def manage_games():
-    return render_template('manage_games.html')
+    return render_template(
+        'manage_games.html',
+        gameList=GAME_LIST
+    )

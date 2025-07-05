@@ -2,113 +2,59 @@
 {% block title %}Manage Devices - Admin Panel{% endblock %}
 {% block content %}
 
-<h2>📋 Unregistered Devices (Online Only)</h2>
-<table class="unregistered_online">
-    <thead>
-        <tr>
-            <th class="PC-ID"   >Machine ID</th>
-            <th class="hostname">Hostname</th>
-            <th class="tag"     >Tag</th>
-            <th class="nickname">Nickname</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_devices.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tablecolor.css') }}">
 
-<hr>
+    <h2>📋 Unregistered Devices (Online Only)</h2>
+    <table class="unregistered_online">
+        <thead>
+            <tr>
+                <th class="PC-ID"   >Machine ID</th>
+                <th class="hostname">Hostname</th>
+                <th class="tag"     >Tag</th>
+                <th class="nickname">Nickname</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
-<h2>🔐 Registered Devices</h2>
-<table class="registered_online">
-    <thead>
-        <tr>
-            <th class="nickname">Nickname</th>
-            <th class="PC-ID"   >Machine ID</th>
-            <th class="regis_at">Registered At</th>
-            <th class="tag"     >Tag</th>
-            <th class="action"  >Action</th>
-        </tr>
-    </thead>
-    <tbody id="registered-table-body">
-        {% for device in registered %}
-        <tr>
-            <td>{{ device.nickname }}</td>
-            <td>{{ device.machine_id }}</td>
-            <td>{{ device.registered_at }}</td>
-            <td>{{ device.tag }}</td>
-            <td>
-                <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
-                    <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
-                    <button type="submit">Delete</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <hr>
+
+    <h2>🔐 Registered Devices</h2>
+    <table class="registered_online">
+        <thead>
+            <tr>
+                <th class="nickname">Nickname</th>
+                <th class="PC-ID"   >Machine ID</th>
+                <th class="regis_at">Registered At</th>
+                <th class="tag"     >Tag</th>
+                <th class="action"  >Action</th>
+            </tr>
+        </thead>
+        <tbody id="registered-table-body">
+            {% for device in registered %}
+            <tr>
+                <td>{{ device.nickname }}</td>
+                <td>{{ device.machine_id }}</td>
+                <td>{{ device.registered_at }}</td>
+                <td>{{ device.tag }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('api_routes.deregister_device') }}">
+                        <input type="hidden" name="machine_id" value="{{ device.machine_id }}">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 <!-- IDENTIFY BUTTON HANDLER -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  document.addEventListener("click", function (event) {
-    if (!event.target.classList.contains("identify-btn")) return;
 
-    const machineId = event.target.dataset.machineId;
 
-    const form = new URLSearchParams();
-    form.append("machine_id", machineId);
-    form.append("action", "ID");
-    form.append("argument", "");
 
-    fetch("{{ url_for('api_routes.send_action_device') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: form.toString()
-    })
-    .then(r => r.json())
-    .then(json => {
-      if (json.status === "success") {
-        alert(`✅ Identify signal sent to ${machineId}`);
-      } else {
-        alert(`⚠️ Error: ${json.message || 'Unknown error'}`);
-      }
-    })
-    .catch(err => {
-      alert(`❌ Request failed: ${err}`);
-    });
-  });
-});
-</script>
-
-<!-- STYLE FOR TABLE -->
-<style>
-    .unregistered_online {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .unregistered_online th,
-    .unregistered_online td {
-        border: 1px solid black;
-        padding: 4px;
-    }
-
-    .unregistered_online .tag,
-    .unregistered_online .PC-ID {
-        width: 10%;
-    }
-
-    .unregistered_online .hostname {
-        width: 15%;
-    }
-
-    .unregistered_online .nickname {
-        width: 30%;
-    }
-</style>
 
 <!-- DYNAMIC JS FOR FETCHING UNREGISTERED DEVICES -->
 <script>
@@ -126,47 +72,5 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 
-    <style>
-        table.unregistered_online,
-        table.registered_online {
-          border: 1px solid #1C6EA4;
-          background-color: #EEEEEE;
-          width: 100%;
-          text-align: center;
-          border-collapse: collapse;
-        }
-        table.unregistered_online td, table.unregistered_online th,
-        table.registered_online td, table.registered_online th {
-          border: 1px solid #AAAAAA;
-          padding: 3px 2px;
-        }
-        table.unregistered_online tbody td,
-        table.registered_online tbody td {
-          font-size: 13px;
-        }
-        table.unregistered_online tr:nth-child(even),
-        table.registered_online tr:nth-child(even) {
-          background: #D0E4F5;
-        }
-        table.unregistered_online thead,
-        table.registered_online thead {
-          background: #1C6EA4;
-          background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-          background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-          background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
-          border-bottom: 2px solid #444444;
-        }
-        table.unregistered_online thead th,
-        table.registered_online thead th {
-          font-size: 15px;
-          font-weight: bold;
-          color: #FFFFFF;
-          border-left: 2px solid #D0E4F5;
-        }
-        table.unregistered_online thead th:first-child,
-        table.registered_online thead th:first-child {
-          border-left: none;
-        }
 
-    </style>
 {% endblock %}

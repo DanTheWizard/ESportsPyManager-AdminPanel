@@ -131,7 +131,7 @@ function createUnregisteredRow(device, tags, saved) {
  * Shows a placeholder row if there are no unregistered devices.
  */
 function addEmptyUnregisteredPlaceholder(tbody) {
-  tbody.innerHTML = `<tr data-placeholder="true"><td colspan="4">No Unregistered Devices</td></tr>`;
+  tbody.innerHTML = `<tr data-placeholder="true"><td colspan="4" style="text-align: center">No Unregistered Devices</td></tr>`;
 }
 
 /**
@@ -215,3 +215,34 @@ refreshUnregisteredDevices();
 refreshRegisteredDevices();
 setInterval(refreshUnregisteredDevices, window.REFRESH_TIMEOUT);
 setInterval(refreshRegisteredDevices, window.REFRESH_TIMEOUT);
+
+// Identify Button Handler
+document.addEventListener("click", function (event) {
+  if (!event.target.classList.contains("identify-btn")) return;
+
+  const machineId = event.target.dataset.machineId;
+
+  const form = new URLSearchParams();
+  form.append("machine_id", machineId);
+  form.append("action", "ID");
+  form.append("argument", "");
+
+  fetch("{{ url_for('api_routes.send_action_device') }}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: form.toString()
+  })
+  .then(r => r.json())
+  .then(json => {
+    if (json.status === "success") {
+      alert(`✅ Identify signal sent to ${machineId}`);
+    } else {
+      alert(`⚠️ Error: ${json.message || 'Unknown error'}`);
+    }
+  })
+  .catch(err => {
+    alert(`❌ Request failed: ${err}`);
+  });
+});
