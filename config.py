@@ -6,12 +6,15 @@ import os
 
 load_dotenv()                                                # Load the variables from the .env file
 
-# config.py
+# Tags Devices can have
 DEVICE_TAGS = ["Stream-OS", "DoeD", "Admin", "Test Bench"]
+
+# List of all available games to kill (MUST HAVE "enable" AS THE FIRST ITEM)
 GAME_LIST = ['enable', 'Epic', 'Steam', 'Battle', 'Riot']
 
-# List of all available actions
+# List of all available actions (Must be the ones in PyAppManager)
 ACTIONS_LIST = ["none", "test", "shutdown", "say", "MCEdu", "MCJava", "ID"]
+
 # Actions that require an argument (argBox)
 ACTIONS_WITH_ARGUMENT = ["shutdown", "say"]
 

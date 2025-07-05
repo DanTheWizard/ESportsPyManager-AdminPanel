@@ -1,4 +1,5 @@
-const fields = ['enable', 'Epic', 'Steam', 'Battle', 'Riot'];
+const fields = window.gameList || [];
+console.log(fields);
 const statusMessage = document.getElementById('status-message');
 
 // Fetch current status and set checkboxes
