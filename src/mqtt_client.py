@@ -4,6 +4,7 @@ from threading import Thread
 import time
 from collections import deque
 from datetime import datetime, timedelta
+from database import get_registered_devices
 import json
 
 
@@ -107,16 +108,22 @@ def update_average_history():
     avg_cpu = sum(cpu_values) / len(cpu_values)
     avg_ram = sum(ram_values) / len(ram_values)
 
-    history_samples.append((timestamp, avg_cpu, avg_ram, len(cpu_values)))
+    # Calculate the count of online registered devices
+    registered_ids = {device[0] for device in get_registered_devices()}
+    online_registered_count = sum(
+        1 for machine_id in connected_devices
+        if machine_id in registered_ids and
+           last_active.get(machine_id) and
+           (timestamp - last_active[machine_id]).total_seconds() <= OFFLINE_DEVICE_TIMEOUT
+    )
 
+    # Append the data to the history, including the device count
+    history_samples.append((timestamp, avg_cpu, avg_ram, online_registered_count))
 
     # Trim old entries
     cutoff = timestamp - history_window
     while history_samples and history_samples[0][0] < cutoff:
         history_samples.popleft()
-
-    # print(f"[DEBUG] Appended history sample: CPU={avg_cpu:.2f}%, RAM={avg_ram:.2f}% at {timestamp.strftime('%H:%M:%S')}")
-
 
 ########################################################################################################################
 
