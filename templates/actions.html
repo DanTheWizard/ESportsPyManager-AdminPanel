@@ -35,11 +35,9 @@
                     <td>
                         <label>
                             <select name="bulk_action" id="bulk_action">
-                                <option value="none">none</option>
-                                <option value="test">test</option>
-                                <option value="shutdown">shutdown</option>
-                                <option value="say">say</option>
-                                <option value="MCEdu">MCEdu</option>
+                                {% for action in ACTIONS_LIST %}
+                                <option value="{{ action }}">{{ action }}</option>
+                                {% endfor %}
                             </select>
                         </label>
                     </td>
@@ -90,6 +88,8 @@
             send_action: "{{ url_for('api_routes.send_action') }}",
         };
         window.REFRESH_TIMEOUT = {{REFRESH_TIMEOUT_MS}}
+        window.ACTIONS_WITH_ARGUMENT = {{ ACTIONS_WITH_ARGUMENT | tojson }};
+        window.ACTIONS_LIST = {{ ACTIONS_LIST | tojson }};
 
       document.addEventListener("DOMContentLoaded", function () {
           const script = document.createElement('script');

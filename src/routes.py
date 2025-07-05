@@ -116,8 +116,10 @@ def actions_page():
     return render_template(
         "actions.html",
         devices=devices,
+        ACTIONS_LIST=ACTIONS_LIST,
+        ACTIONS_WITH_ARGUMENT=ACTIONS_WITH_ARGUMENT,
         OFFLINE_DEVICE_TIMEOUT=OFFLINE_DEVICE_TIMEOUT,
-        REFRESH_TIMEOUT_MS=(ACTIONS_REFRESH_TIMEOUT*1000)
+        REFRESH_TIMEOUT_MS=(ACTIONS_REFRESH_TIMEOUT * 1000)
     )
 
 ########################################################################################################################

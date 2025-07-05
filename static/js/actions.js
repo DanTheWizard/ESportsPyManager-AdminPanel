@@ -1,6 +1,11 @@
 // Helpers
+
+// Use the dynamically injected list of actions
+const actionsWithArgument = window.ACTIONS_WITH_ARGUMENT || [];
+
+// Update the shouldShowArgBox function
 function shouldShowArgBox(action) {
-  return ["shutdown", "say"].includes(action);
+  return actionsWithArgument.includes(action);
 }
 
 function toggleArgBox(argBox, action) {
@@ -96,6 +101,12 @@ document.getElementById("bulk_execute").addEventListener("click", function () {
 function createDeviceRow(device) {
   const tr = document.createElement('tr');
   tr.setAttribute('data-machine-id', device.machine_id);
+
+  // Generate options dynamically from ACTIONS_LIST
+  const actionOptions = window.ACTIONS_LIST.map(action =>
+    `<option value="${action}">${action}</option>`
+  ).join("");
+
   tr.innerHTML = `
     <td>
       <label class="container">
@@ -109,12 +120,7 @@ function createDeviceRow(device) {
     <td>${device.machine_id}</td>
     <td>
       <select class="action-dropdown">
-        <option value="none">none</option>
-        <option value="test">test</option>
-        <option value="shutdown">shutdown</option>
-        <option value="say">say</option>
-        <option value="MCEdu">MCEdu</option>
-        <option value="ID">ID</option>
+        ${actionOptions}
       </select>
     </td>
     <td><input type="text" class="arg-box" autocomplete="off" disabled placeholder="Optional Argument"></td>

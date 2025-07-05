@@ -10,6 +10,11 @@ load_dotenv()                                                # Load the variable
 DEVICE_TAGS = ["Stream-OS", "DoeD", "Admin", "Test Bench"]
 GAME_LIST = ['enable', 'Epic', 'Steam', 'Battle', 'Riot']
 
+# List of all available actions
+ACTIONS_LIST = ["none", "test", "shutdown", "say", "MCEdu", "MCJava", "ID"]
+# Actions that require an argument (argBox)
+ACTIONS_WITH_ARGUMENT = ["shutdown", "say"]
+
 
 ADMIN_USERNAME   = os.getenv("ADMIN_USERNAME")                              ;"The Admin Username for login"
 ADMIN_PASSWORD   = generate_password_hash(os.getenv("ADMIN_PASSWORD"))      ;"Admin Password for Login"
