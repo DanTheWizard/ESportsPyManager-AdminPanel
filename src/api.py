@@ -5,6 +5,14 @@ from src.mqtt_client import connected_devices, hostnames, last_active, get_espor
 from src.mqtt_client import client as mqtt_client
 from datetime import datetime
 from config import *
+import bleach
+
+
+
+def sanitize_input(input_data):
+    return bleach.clean(input_data, tags=[], attributes={}, strip=True)
+
+# Usage
 
 
 api_routes = Blueprint("api_routes", __name__, url_prefix="/api")
@@ -82,9 +90,9 @@ def api_avg_usage_history():
 @api_routes.route('/register_from_manage', methods=['POST'])
 @login_required
 def register_from_manage():
-    machine_id = request.form.get("machine_id")
-    nickname   = request.form.get("nickname")
-    tag        = request.form.get("tag")
+    machine_id = sanitize_input(request.form.get("machine_id"))
+    nickname   = sanitize_input(request.form.get("nickname"))
+    tag        = sanitize_input(request.form.get("tag"))
 
     if machine_id and nickname:
         register_device(machine_id, nickname, tag)
