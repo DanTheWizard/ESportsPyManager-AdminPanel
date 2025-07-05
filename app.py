@@ -19,6 +19,9 @@ mqtt_thread.start()
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY  # Use os.getenv in production
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 @app.context_processor
 def inject_now():
