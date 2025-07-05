@@ -227,7 +227,7 @@ document.addEventListener("click", function (event) {
   form.append("action", "ID");
   form.append("argument", "");
 
-  fetch("{{ url_for('api_routes.send_action_device') }}", {
+  fetch(window.SEND_ACTION_DEVICE_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded"

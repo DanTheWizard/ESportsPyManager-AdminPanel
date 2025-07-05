@@ -4,6 +4,8 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_devices.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tablecolor.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dropdown.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inputbox.css') }}">
 
     <h2>📋 Unregistered Devices (Online Only)</h2>
     <table class="unregistered_online">
@@ -63,6 +65,7 @@
         register_from_manage: "{{ url_for('api_routes.register_from_manage') }}"
     };
     window.REFRESH_TIMEOUT = {{REFRESH_TIMEOUT_MS}}
+    window.SEND_ACTION_DEVICE_URL = "{{ url_for('api_routes.send_action_device') }}"
 
     document.addEventListener("DOMContentLoaded", function () {
         const script = document.createElement('script');
