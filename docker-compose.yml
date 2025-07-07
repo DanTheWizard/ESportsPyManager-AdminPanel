@@ -1,0 +1,11 @@
+services:
+  adminpanel:
+    build: .
+    container_name: adminpanel
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: unless-stopped
