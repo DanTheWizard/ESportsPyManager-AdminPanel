@@ -9,11 +9,11 @@ load_dotenv()                                                # Load the variable
 # Tags Devices can have
 DEVICE_TAGS = ["Stream-OS", "DoeD", "Admin", "Test Bench"]
 
-# List of all available games to kill (MUST HAVE "enable" AS THE FIRST ITEM)
-GAME_LIST = ['enable', 'Epic', 'Steam', 'Battle', 'Riot']
+# List of all available games to kill (MUST HAVE "enable" AS THE FIRST ITEM) based on the APP_MAP in PyAppManager
+GAME_LIST = ['enable', 'Epic', 'Steam', 'Battle', 'Riot', "MCJava", "MCEdu"]
 
 # List of all available actions (Must be the ones in PyAppManager)
-ACTIONS_LIST = ["none", "test", "shutdown", "say", "MCEdu", "MCJava", "ID"]
+ACTIONS_LIST = ["none", "test", "shutdown", "reboot", "say", "MCEdu", "MCJava", "ID"]
 
 # Actions that require an argument (argBox)
 ACTIONS_WITH_ARGUMENT = ["shutdown", "say"]
