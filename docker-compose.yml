@@ -8,5 +8,5 @@ services:
       - .env
     volumes:
       - .:/app
-      - ~/devices.db:/app/devices.db
+      # - ~/devices.db:/app/devices.db
     restart: unless-stopped

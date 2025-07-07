@@ -25,5 +25,5 @@ ENV PYTHONPATH=/app/src
 EXPOSE 8080
 
 # Command to run the application using Gunicorn
-CMD ["gunicorn", "-w", "1", "-b", "127.0.0.1:8080", "app:app"]
+CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8080", "app:app"]
 
