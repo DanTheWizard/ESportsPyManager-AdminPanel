@@ -3,9 +3,10 @@ services:
     build: .
     container_name: adminpanel
     ports:
-      - "5000:5000"
+      - "8080:8080"
     env_file:
       - .env
     volumes:
       - .:/app
+      - ~/devices.db:/app/devices.db
     restart: unless-stopped

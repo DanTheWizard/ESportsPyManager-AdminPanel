@@ -1,19 +1,29 @@
 FROM python:3-alpine
 
+# Set environment variables to prevent Python from writing .pyc files and buffering stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache build-base libffi-dev
+RUN apk add --no-cache gcc musl-dev build-base libffi-dev openssl-dev python3-dev
 
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy everything into container
-COPY . .
+COPY . /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set PYTHONPATH so Flask sees modules inside /app/src as top-level
 ENV PYTHONPATH=/app/src
 
-# Run with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+EXPOSE 8080
+
+# Command to run the application using Gunicorn
+CMD ["gunicorn", "-w", "1", "-b", "127.0.0.1:8080", "app:app"]
+
