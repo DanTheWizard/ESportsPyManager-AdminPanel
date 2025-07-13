@@ -1,10 +1,17 @@
-from flask import Blueprint, redirect, url_for, request, jsonify, current_app
-from flask_login import login_required
-from database import register_device, get_registered_devices, remove_device
-from src.mqtt_client import connected_devices, hostnames, last_active, get_esports_status, publish_esports_status, history_samples
+from datetime        import datetime
+from flask           import Blueprint, redirect, url_for, request, jsonify, current_app
+from flask_login     import login_required
+from src.database    import register_device, remove_device
+from src.database    import (
+    get_registered_devices,
+    get_online_devices,
+    get_all_device_status,
+    get_last_seen
+)
 from src.mqtt_client import client as mqtt_client
-from datetime import datetime
-from config import *
+from src.mqtt_client import get_esports_status, publish_esports_status, history_samples
+
+from config          import *
 import bleach
 
 
@@ -20,22 +27,13 @@ api_routes = Blueprint("api_routes", __name__, url_prefix="/api")
 @api_routes.route('/dashboard_stats')
 @login_required
 def api_dashboard_stats():
-    from src.mqtt_client import last_active
-    now = datetime.now()
-
     registered = get_registered_devices()
     registered_ids = {r[0] for r in registered}
     total = len(registered)
-    online = 0
-    unregistered_online = 0
 
-    for machine_id in connected_devices:
-        last = last_active.get(machine_id)
-        if last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT:
-            if machine_id in registered_ids:
-                online += 1
-            else:
-                unregistered_online += 1
+    online_ids = get_online_devices()
+    online = sum(1 for id in online_ids if id in registered_ids)
+    unregistered_online = sum(1 for id in online_ids if id not in registered_ids)
 
     return jsonify({
         "total": total,
@@ -44,32 +42,34 @@ def api_dashboard_stats():
         "unregistered": unregistered_online
     })
 
+
 @api_routes.route('/device_usage_data')
 @login_required
 def api_device_usage_data():
-    from src.mqtt_client import device_status, last_active
-    now = datetime.now()
-
     usage = []
-    for machine_id, nickname, *_ in get_registered_devices():
-        last = last_active.get(machine_id)
-        if not last or (now - last).total_seconds() > OFFLINE_DEVICE_TIMEOUT:
-            continue  # Skip offline
+    online_ids = get_online_devices()
+    registered = get_registered_devices()
+    device_map = {d[0]: d[1] for d in registered}  # machine_id → nickname
 
-        stats = device_status.get(machine_id, {})
+    for row in get_all_device_status():
+        machine_id, _, cpu, ram, _, _, _, _ = row
+        if machine_id not in online_ids or machine_id not in device_map:
+            continue
+
         try:
-            cpu = float(stats.get("cpu", 0))
-            ram = float(stats.get("ram", 0))
-        except ValueError:
+            cpu = float(cpu)
+            ram = float(ram)
+        except (TypeError, ValueError):
             cpu = ram = 0.0
 
         usage.append({
-            "nickname": nickname,
+            "nickname": device_map[machine_id],
             "cpu": cpu,
             "ram": ram
         })
 
     return jsonify(devices=usage)
+
 
 @api_routes.route("/avg_usage_history")
 @login_required
@@ -160,19 +160,21 @@ def send_action_device():
 @api_routes.route('/device_statuses')
 @login_required
 def api_device_statuses():
+    registered = get_registered_devices()
+    online_ids = get_online_devices()
+
     statuses = []
-    now = datetime.now()
-    for machine_id, nickname, *_, tag in get_registered_devices():
-        last = last_active.get(machine_id)
-        online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
+    for machine_id, nickname, *_ , tag in registered:
+        online = machine_id in online_ids
         statuses.append({
             "machine_id": machine_id,
             "tag": tag,
             "nickname": nickname,
             "online": online,
-            "last_active": last.isoformat() if last else None
+            "last_active": get_last_seen(machine_id)
         })
     return jsonify(statuses=statuses)
+
 
 
 
@@ -182,31 +184,27 @@ def api_device_statuses():
 def api_unregistered_devices():
     now = datetime.now()
     registered_ids = {device[0] for device in get_registered_devices()}
-    online_ids = {
-        machine_id
-        for machine_id in connected_devices
-        if (
-            last_active.get(machine_id) and
-            (now - last_active[machine_id]).total_seconds() <= OFFLINE_DEVICE_TIMEOUT
-        )
-    }
+    online_ids = get_online_devices()
 
-    unsorted = [
-        {
-            "machine_id": machine_id,
-            "hostname": hostnames.get(machine_id, "Unknown")
-        }
-        for machine_id in (online_ids - registered_ids)
-    ]
-    unregistered = sorted(unsorted, key=lambda x: x["hostname"].lower())
+    unregistered = []
+    for row in get_all_device_status():
+        machine_id, hostname, *_ = row
+        if machine_id in online_ids and machine_id not in registered_ids:
+            unregistered.append({
+                "machine_id": machine_id,
+                "hostname": hostname or "Unknown"
+            })
+
+    unregistered = sorted(unregistered, key=lambda x: x["hostname"].lower())
     return jsonify(unregistered=unregistered, tags=DEVICE_TAGS)
+
 
 
 @api_routes.route('/registered_devices')
 @login_required
 def api_registered_devices():
     devices = []
-    for machine_id, nickname, registered_at, _, tag in get_registered_devices():
+    for machine_id, nickname, registered_at, tag in get_registered_devices():
         dt = datetime.fromisoformat(registered_at)
         devices.append({
             "machine_id": machine_id,

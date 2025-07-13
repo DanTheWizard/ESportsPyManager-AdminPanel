@@ -1,17 +1,15 @@
 import paho.mqtt.client as mqtt
-from config import *
-from threading import Thread
 import time
-from collections import deque
-from datetime import datetime, timedelta
-from database import get_registered_devices
 import json
+from config          import *
+from threading       import Thread
+from collections     import deque
+from datetime        import datetime, timedelta
+from src.database import get_all_device_status, get_online_devices, get_registered_devices, upsert_device_status
+from src.database import update_last_seen
 
-
-connected_devices = set()   # Will contain active machine_ids
-hostnames = {}              # machine_id -> hostname
 last_active = {}            # machine_id -> datetime
-device_status = {}          # machine_id → { cpu, ram, user, app }
+
 
 # History storage
 history_window = timedelta(minutes=AVG_PERSIST_MINUTES)
@@ -38,34 +36,32 @@ def on_connect(wsclient, userdata, flags, reason_code, properties):
 def on_message(wsclient, userdata, msg):
     topic = msg.topic
     payload = msg.payload.decode()
-    if topic.startswith("PC/"):
-        machine_id = topic.split('/')[1]
-        connected_devices.add(machine_id) # Detects the computers by MACHINE_ID
+
+    if topic.startswith("PC/") and topic.endswith("/data"):
         parts = topic.split('/')
-
-        if len(parts) >= 2:
-            machine_id = parts[1]
-            connected_devices.add(machine_id)
-
-            if len(parts) == 3 and parts[2] == "hostname":
-                hostnames[machine_id] = payload
-
         if len(parts) == 3:
             machine_id = parts[1]
-            key = parts[2]
-            if key in ["cpu", "ram", "user", "app"]:
-                device_status.setdefault(machine_id, {})[key] = payload
+
+            try:
+                data = json.loads(payload)
+                upsert_device_status(machine_id, data)
+            except json.JSONDecodeError:
+                print(f"[MQTT] Failed to decode JSON payload for {machine_id}: {payload}")
 
     elif topic.startswith("LastActive/") and topic.endswith("/time"):
         _, machine_id, _ = topic.split('/')
-        last_active[machine_id] = datetime.fromisoformat(payload)
-        #print(f"[MQTT] {machine_id} last seen at {last_active[machine_id]}")
+        try:
+            # Parse and store last seen time in DB
+            update_last_seen(machine_id, payload)
+        except Exception as e:
+            print(f"[MQTT] Failed to update last_seen for {machine_id}: {e}")
 
     elif topic == ESPORTS_STATUS_TOPIC:
         try:
             get_esports_status.last_status = json.loads(payload)
         except Exception:
             get_esports_status.last_status = None
+
 
 
 def run_mqtt_and_stats():
@@ -100,21 +96,29 @@ def mqtt_background_loop():
 
 def update_average_history():
     timestamp = datetime.now()
-    cpu_values = [float(d.get("cpu", 0)) for d in device_status.values()]
-    ram_values = [float(d.get("ram", 0)) for d in device_status.values()]
+    status_rows = get_all_device_status()
+
+    cpu_values = []
+    ram_values = []
+    for row in status_rows:
+        _, _, cpu, ram, *_ = row
+        try:
+            cpu_values.append(float(cpu))
+            ram_values.append(float(ram))
+        except (ValueError, TypeError):
+            continue  # Skip invalid data
+
     if not cpu_values:
         return
 
     avg_cpu = sum(cpu_values) / len(cpu_values)
     avg_ram = sum(ram_values) / len(ram_values)
 
-    # Calculate the count of online registered devices
     registered_ids = {device[0] for device in get_registered_devices()}
+    online_ids = get_online_devices()
+
     online_registered_count = sum(
-        1 for machine_id in connected_devices
-        if machine_id in registered_ids and
-           last_active.get(machine_id) and
-           (timestamp - last_active[machine_id]).total_seconds() <= OFFLINE_DEVICE_TIMEOUT
+        1 for machine_id in online_ids if machine_id in registered_ids
     )
 
     # Append the data to the history, including the device count

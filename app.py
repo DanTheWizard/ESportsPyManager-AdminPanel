@@ -1,16 +1,17 @@
 from flask import Flask
 from flask_login import LoginManager
-from routes import app_routes
-from api import api_routes
-from users import load_user
-from database import init_db
 from threading import Thread
-from src.mqtt_client import mqtt_background_loop
 from datetime import datetime
+from src.routes import app_routes
+from src.api import api_routes
+from src.users import load_user
+from src.database import init_db,init_device_status_table
+from src.mqtt_client import mqtt_background_loop
 from config import SECRET_KEY
 
 # before app.run(...)
 init_db()
+init_device_status_table()
 
 # Start MQTT connection in a separate thread
 mqtt_thread = Thread(target=mqtt_background_loop)
@@ -18,7 +19,7 @@ mqtt_thread.daemon = True
 mqtt_thread.start()
 
 app = Flask(__name__)
-app.secret_key = SECRET_KEY  # Use os.getenv in production
+app.secret_key = SECRET_KEY
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'

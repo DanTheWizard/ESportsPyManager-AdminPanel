@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
-from flask_login import login_user, logout_user, login_required, current_user
-from database import get_registered_devices
-from users import validate_login
-from src.mqtt_client import connected_devices, hostnames, last_active, device_status
-from datetime import datetime
-from config import *
+from flask           import Blueprint, render_template, redirect, url_for, request, jsonify, flash
+from flask_login     import login_user, logout_user, login_required, current_user
+from src.database    import get_registered_devices, get_all_device_status, get_online_devices
+from src.users       import validate_login
+from datetime        import datetime
+from config          import *
 
 app_routes = Blueprint("app_routes", __name__)
 
@@ -39,20 +38,13 @@ def logout():
 @app_routes.route('/dashboard')
 @login_required
 def dashboard():
-    from src.mqtt_client import last_active
-    now = datetime.now()
-
     registered = get_registered_devices()
-    total = len(registered)
-    online = 0
-    offline = 0
+    registered_ids = {row[0] for row in registered}
+    online_ids = get_online_devices()
 
-    for machine_id, *_ in registered:
-        last = last_active.get(machine_id)
-        if last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT:
-            online += 1
-        else:
-            offline += 1
+    total = len(registered)
+    online = len(online_ids & registered_ids)
+    offline = total - online
 
     return render_template(
         "dashboard.html",
@@ -66,6 +58,7 @@ def dashboard():
 
 
 
+
 ########################################################################################################################
 
 @app_routes.route('/manage-devices')
@@ -73,13 +66,18 @@ def dashboard():
 def manage_devices():
     registered_rows = get_registered_devices()
     registered_ids = {device[0] for device in registered_rows}
-    online_ids = connected_devices
+    online_ids = get_online_devices()
 
     # Unregistered = online but not in DB - Sorted by Hostname
+    status_map = {
+        row[0]: row[1]  # machine_id -> hostname
+        for row in get_all_device_status()
+    }
+
     unsorted = [
         {
             "machine_id": machine_id,
-            "hostname": hostnames.get(machine_id, "Unknown")
+            "hostname": status_map.get(machine_id, "Unknown")
         }
         for machine_id in (online_ids - registered_ids)
     ]
@@ -87,7 +85,7 @@ def manage_devices():
 
     # Registered = in DB (some may be offline) - Sorted by Nickname
     registered = []
-    for machine_id, nickname, registered_at, last_seen, tag in registered_rows:
+    for machine_id, nickname, registered_at, tag in registered_rows:
         dt = datetime.fromisoformat(registered_at)
         registered.append({
             "machine_id": machine_id,
@@ -145,21 +143,35 @@ def api_overview_data():
 def build_device_data():
     now = datetime.now()
     registered_rows = get_registered_devices()
+    online_ids = get_online_devices()
+    status_map = {
+        row[0]: row  # machine_id -> full row
+        for row in get_all_device_status()
+    }
+
     devices = []
-    for machine_id, nickname, *_, tag in registered_rows:
-        last = last_active.get(machine_id)
-        online = bool(last and (now - last).total_seconds() <= OFFLINE_DEVICE_TIMEOUT)
-        stats = device_status.get(machine_id, {})
+    for machine_id, nickname, *_ , tag in registered_rows:
+        row = status_map.get(machine_id)
+        if row:
+            _, _, cpu, ram, user, app, _, last_seen = row
+            last_seen_dt = datetime.fromisoformat(last_seen) if last_seen else None
+        else:
+            cpu = ram = user = app = "—"
+            last_seen_dt = None
+
+        online = machine_id in online_ids
+
         devices.append({
             "nickname": nickname,
             "tag": tag,
-            "cpu": stats.get("cpu", "—"),
-            "ram": stats.get("ram", "—"),
-            "user": stats.get("user", "—"),
-            "app": stats.get("app", "—"),
-            "last_active": last.isoformat() if last else None,
+            "cpu": cpu or "—",
+            "ram": ram or "—",
+            "user": user or "—",
+            "app": app or "—",
+            "last_active": last_seen_dt.isoformat() if last_seen_dt else None,
             "online": online
         })
+
     return devices
 ########################################################################################################################
 
