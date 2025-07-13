@@ -184,7 +184,7 @@ function refreshRegisteredDevices() {
       tbody.innerHTML = "";
 
       if (!data.registered || data.registered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5">No registered devices.</td></tr>`;
+        tbody.innerHTML = `<tr><td style='text-align: center' colspan="5">No registered devices.</td></tr>`;
         return;
       }
 
