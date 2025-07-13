@@ -48,14 +48,6 @@ def on_message(wsclient, userdata, msg):
             except json.JSONDecodeError:
                 print(f"[MQTT] Failed to decode JSON payload for {machine_id}: {payload}")
 
-    elif topic.startswith("LastActive/") and topic.endswith("/time"):
-        _, machine_id, _ = topic.split('/')
-        try:
-            # Parse and store last seen time in DB
-            update_last_seen(machine_id, payload)
-        except Exception as e:
-            print(f"[MQTT] Failed to update last_seen for {machine_id}: {e}")
-
     elif topic == ESPORTS_STATUS_TOPIC:
         try:
             get_esports_status.last_status = json.loads(payload)

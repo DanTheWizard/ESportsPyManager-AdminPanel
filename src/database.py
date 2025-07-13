@@ -59,17 +59,6 @@ def register_device(machine_id, nickname, tag):
         conn.commit()
 
 
-
-def update_last_seen(machine_id, iso_timestamp=None):
-    now = iso_timestamp or datetime.now().isoformat()
-    with sqlite3.connect(DB_PATH) as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE device_status SET last_seen = ? WHERE machine_id = ?
-        ''', (now, machine_id))
-        conn.commit()
-
-
 def get_all_devices():
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
