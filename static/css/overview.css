@@ -13,7 +13,8 @@
 }
 
 .overview_online .CPU_perc,
-.overview_online .RAM_perc {
+.overview_online .RAM_perc,
+.overview_online .version {
   width: 5%;
 }
 
@@ -22,5 +23,5 @@
 }
 
 .overview_online .ACTV_app {
-  width: 55%;
+  width: 50%;
 }

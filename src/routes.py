@@ -153,10 +153,10 @@ def build_device_data():
     for machine_id, nickname, *_ , tag in registered_rows:
         row = status_map.get(machine_id)
         if row:
-            _, _, cpu, ram, user, app, _, last_seen = row
+            _, _, cpu, ram, user, app, version, last_seen = row
             last_seen_dt = datetime.fromisoformat(last_seen) if last_seen else None
         else:
-            cpu = ram = user = app = "—"
+            cpu = ram = user = app = version = "—"
             last_seen_dt = None
 
         online = machine_id in online_ids
@@ -168,6 +168,7 @@ def build_device_data():
             "ram": ram or "—",
             "user": user or "—",
             "app": app or "—",
+            "version": version or "—",
             "last_active": last_seen_dt.isoformat() if last_seen_dt else None,
             "online": online
         })

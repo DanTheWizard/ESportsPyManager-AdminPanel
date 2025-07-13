@@ -21,6 +21,7 @@ function refreshOverview() {
                     <td>${d.tag}</td>
                     <td>${d.cpu}</td>
                     <td>${d.ram}</td>
+                    <td>${d.version}</td>
                     <td>${d.user}</td>
                     <td>${d.app}</td>
                     `;
