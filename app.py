@@ -9,6 +9,8 @@ from src.database import init_db,init_device_status_table
 from src.mqtt_client import mqtt_background_loop
 from config import SECRET_KEY
 
+PANEL_VERSION="2.2.1"
+
 # before app.run(...)
 init_db()
 init_device_status_table()
@@ -27,6 +29,10 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 @app.context_processor
 def inject_now():
     return {'now': lambda: datetime.now()}
+
+@app.context_processor
+def inject_appVer():
+    return {'PANEL_VERSION': PANEL_VERSION}
 
 # Flask-Login Setup
 login_manager = LoginManager()

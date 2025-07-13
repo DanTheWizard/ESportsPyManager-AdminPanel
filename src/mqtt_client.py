@@ -7,8 +7,6 @@ from collections     import deque
 from datetime        import datetime, timedelta
 from src.database import get_all_device_status, get_online_devices, get_registered_devices, upsert_device_status
 
-last_active = {}            # machine_id -> datetime
-
 
 # History storage
 history_window = timedelta(minutes=AVG_PERSIST_MINUTES)
