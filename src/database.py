@@ -5,7 +5,7 @@ import os
 
 FOLDER_PATH = r"db"
 os.makedirs(FOLDER_PATH, exist_ok=True)
-DB_PATH = f"{FOLDER_PATH}\\devices.db"  # This file will be created automatically
+DB_PATH = f"{FOLDER_PATH}/devices.db"  # This file will be created automatically
 
 def init_db():
     try:
