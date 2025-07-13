@@ -13,6 +13,11 @@ function refreshUnregisteredDevices() {
 
       removePlaceholders(tbody);
 
+      const elementToRemove = document.getElementById('loading_online_placeholder');
+      if (elementToRemove) { // Check if the element exists before attempting to remove it
+        elementToRemove.remove();
+      }
+
       data.unregistered.forEach(device => {
         newIds.add(device.machine_id);
         const saved = savedState[device.machine_id] || {};
