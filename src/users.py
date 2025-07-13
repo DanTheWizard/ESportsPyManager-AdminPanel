@@ -2,7 +2,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash
 from config import *
 
-# Example in-memory user store
+
 USER_DB = {
     f"{ADMIN_USERNAME}": f"{ADMIN_PASSWORD}"
 }
