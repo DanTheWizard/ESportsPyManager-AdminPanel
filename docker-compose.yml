@@ -5,7 +5,8 @@ services:
       - "8070:5000"
     env_file:
       - .env
-#    environment:
+    environment:
+      TZ: America/New_York
 #      - ADMIN_USERNAME={Username Here}
 #      - ADMIN_PASSWORD={Password Here}
 #      - SECRET_KEY={Secret Key Here}
@@ -16,10 +17,12 @@ services:
 #      - WS_TLS={True/False}
 #      - DEVICE_TAGS=["Room1","Room2","Admin","Test-Bench"]
 #      - ENABLE_DASH_CHART=True
+
 #      # THESE ARE BASED ON THE ONES SET IN THE CONFIG IN PyAppManager:
 #      - GAME_LIST=["Epic","Steam","Battle","Riot","MCJava","MCEdu"]
 #      - ACTIONS_LIST=["none","test","shutdown","reboot","say","MCEdu","MCJava","ID"]
 #      - ACTIONS_WITH_ARGUMENT=["shutdown","say"]
+
 # Uncomment the following two lines if you want to persist the database
 #    volumes:
 #      - ./db:/app/db
