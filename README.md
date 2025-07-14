@@ -10,9 +10,9 @@ A Flask-based web admin panel for managing devices and users, integrated with MQ
 > [!CAUTION]
 > This is my first Flask project, so it may not follow best practices or conventions.
 
-> ⚙️ This project was made for fun, testing, deploying on custom-built computers, and practical experimentation.
 
 > [!NOTE]  
+> ⚙️ This project was made for fun, testing, deploying on my managed computers, and practical experimentation.<br>
 > I am sharing the code to help others learn and adapt it for their own use cases 🙂
 
 ---
