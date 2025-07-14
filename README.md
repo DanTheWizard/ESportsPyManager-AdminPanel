@@ -38,7 +38,7 @@ A Flask-based web admin panel for managing devices and users, integrated with MQ
 ---
 
 ## 💻 Client Tool
-You can find the admin panel to this tool [here](https://github.com/DanTheWizard/ESportsPyManager):
+You can find the client tool to this [here](https://github.com/DanTheWizard/ESportsPyManager):
 - https://github.com/DanTheWizard/ESportsPyManager
 
 ---
