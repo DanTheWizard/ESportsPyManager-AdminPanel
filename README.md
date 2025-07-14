@@ -46,12 +46,12 @@ You can find the admin panel to this tool [here](https://github.com/DanTheWizard
 
 - Python 3.9 or higher _(Made with 3.13)_
 - Dependencies (see `requirements.txt`):
-  - flask
-  - flask-login
-  - python-dotenv
-  - paho-mqtt
-  - bleach
-  - gunicorn
+  - `flask`
+  - `flask-login`
+  - `python-dotenv`
+  - `paho-mqtt`
+  - `bleach`
+  - `gunicorn`
 
 ---
 
