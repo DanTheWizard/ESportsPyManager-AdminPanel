@@ -18,8 +18,13 @@ A Flask-based web admin panel for managing devices and users, integrated with MQ
 
 ---
 
+<br>
+
 ## 📝 TODO:
  - Figure out how to utilise the DynSec plugin of Mosquitto to limit access, to prevent issues if someone extracts a device password from the app
+ - Add the Mosquitto docker container with the necessary configurations (like DynSec) to be part of this docker deployment (to avoid split docker setups)
+
+<br>
 
 ---
 
